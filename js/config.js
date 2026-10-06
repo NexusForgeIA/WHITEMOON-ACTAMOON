@@ -7,7 +7,7 @@ export const CONFIG = {
   producto: 'ACTAMOON',
 
   eleccion: {
-    tipo: 'Elecciones municipales',
+    tipo: 'Elecciones generales / municipales',
     ambito: 'Municipio de Ejemplo',
   },
 

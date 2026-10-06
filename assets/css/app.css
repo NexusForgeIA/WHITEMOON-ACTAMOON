@@ -1416,8 +1416,13 @@ a.boton--secundario:hover {
     height: 2rem;
   }
 
+  /* Si no cabe en una linea, se recorta con puntos suspensivos. */
   .cabecera__ambito {
-    display: inline;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .sistema {
