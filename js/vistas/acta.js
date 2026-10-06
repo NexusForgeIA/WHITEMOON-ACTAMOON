@@ -1,4 +1,5 @@
 import { actaDe, admiteCaptura } from '../actas.js';
+import { candidaturas } from '../candidaturas.js';
 import { CONFIG } from '../config.js';
 import { leer } from '../db.js';
 import { puedeCapturar } from '../permisos.js';
@@ -20,7 +21,7 @@ function borradorDe(mesaId, anterior) {
     const textos = {};
     if (anterior) {
       for (const { id } of CONFIG.acta.campos) textos[id] = String(anterior.cifras[id]);
-      for (const { id } of CONFIG.candidaturas) textos[`candidatura-${id}`] = String(anterior.cifras.candidaturas[id]);
+      for (const { id } of candidaturas()) textos[`candidatura-${id}`] = String(anterior.cifras.candidaturas[id]);
     }
     borradores.set(mesaId, { textos, foto: null, confirma: false, motivo: '' });
   }
@@ -30,7 +31,7 @@ function borradorDe(mesaId, anterior) {
 function camposDelActa() {
   return [
     ...CONFIG.acta.campos,
-    ...CONFIG.candidaturas.map(({ id, nombre }) => ({ id: `candidatura-${id}`, etiqueta: nombre, candidatura: true })),
+    ...candidaturas().map(({ id, nombre }) => ({ id: `candidatura-${id}`, etiqueta: nombre, candidatura: true })),
   ];
 }
 
@@ -38,7 +39,7 @@ function cifrasDe(textos) {
   return {
     ...Object.fromEntries(CONFIG.acta.campos.map(({ id }) => [id, leeEntero(textos[id])])),
     candidaturas: Object.fromEntries(
-      CONFIG.candidaturas.map(({ id }) => [id, leeEntero(textos[`candidatura-${id}`])]),
+      candidaturas().map(({ id }) => [id, leeEntero(textos[`candidatura-${id}`])]),
     ),
   };
 }
@@ -150,7 +151,7 @@ export function vistaActa({ estado, params: [mesaId], acciones }) {
 
   function estadoActual() {
     const cifras = cifrasDe(borrador.textos);
-    const validacion = validaActa(cifras, CONFIG.candidaturas);
+    const validacion = validaActa(cifras, candidaturas());
     const envio = puedeEnviar({
       validacion,
       hayFoto: Boolean(borrador.foto),
@@ -221,7 +222,7 @@ export function vistaActa({ estado, params: [mesaId], acciones }) {
   actualiza();
 
   const generales = campos.filter((campo) => !campo.candidatura);
-  const candidaturas = campos.filter((campo) => campo.candidatura);
+  const deCandidatura = campos.filter((campo) => campo.candidatura);
   const titulo = anterior ? T.tituloCorreccion(mesa.nombre) : T.tituloCaptura(mesa.nombre);
 
   return {
@@ -246,7 +247,7 @@ export function vistaActa({ estado, params: [mesaId], acciones }) {
           'fieldset',
           { class: 'campos-grupo' },
           h('legend', null, T.tituloCandidaturas),
-          h('div', { class: 'campos' }, candidaturas.map((campo) => campo.nodo)),
+          h('div', { class: 'campos' }, deCandidatura.map((campo) => campo.nodo)),
         ),
         resumen,
         descuadre,
@@ -284,7 +285,7 @@ export function detalleActa(acta, mesa, estado) {
           'div',
           null,
           h('strong', null, T.enviadaConDescuadre),
-          explicaDescuadre(validaActa(acta.cifras, CONFIG.candidaturas)).map((frase) => h('p', null, frase)),
+          explicaDescuadre(validaActa(acta.cifras, candidaturas())).map((frase) => h('p', null, frase)),
           h('p', null, `${T.motivo}: ${acta.descuadre.motivo}`),
         ),
       ),
@@ -299,7 +300,7 @@ export function detalleActa(acta, mesa, estado) {
           'tbody',
           null,
           CONFIG.acta.campos.map(({ id, etiqueta }) => fila(etiqueta, acta.cifras[id])),
-          CONFIG.candidaturas.map(({ id, nombre }) => fila(nombre, acta.cifras.candidaturas[id])),
+          candidaturas().map(({ id, nombre }) => fila(nombre, acta.cifras.candidaturas[id])),
         ),
       ),
       h(

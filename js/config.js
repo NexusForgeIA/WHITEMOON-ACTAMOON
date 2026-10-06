@@ -11,10 +11,13 @@ export const CONFIG = {
     ambito: 'Municipio de Ejemplo',
   },
 
+  // Los identificadores no cambian: las actas guardan las cifras por
+  // identificador. El nombre es el de partida; el administrador puede
+  // cambiarlo desde «Equipo» (candidaturas.js da el vigente).
   candidaturas: [
-    { id: 'A', nombre: 'Candidatura A' },
-    { id: 'B', nombre: 'Candidatura B' },
-    { id: 'C', nombre: 'Candidatura C' },
+    { id: 'A', nombre: 'PP' },
+    { id: 'B', nombre: 'VOX' },
+    { id: 'C', nombre: 'SALF' },
   ],
 
   // El acta: que cifras se piden, limites y todos sus textos. Las reglas
@@ -140,6 +143,8 @@ export const CONFIG = {
       tituloTabla: 'Suma por concepto',
       mesasSumadas: 'Mesas sumadas',
       desglose: 'Desglose por colegio y mesa',
+      // En las tablas anchas la columna lleva la letra; esta linea dice de quien es.
+      leyenda: (candidaturas) => `Columnas: ${candidaturas.map(({ id, nombre }) => `${id} = ${nombre}`).join(' · ')}.`,
       mesa: 'Mesa',
       estado: 'Estado',
       subtotal: 'Subtotal validadas',
@@ -178,12 +183,15 @@ export const CONFIG = {
       const campos = { nombre: 'Nombre', colegio: 'Colegio', apoderado: 'Apoderado', interventor: 'Interventor', estado: 'Estado', mesa: 'Mesa', rol: 'Rol' };
       const valor = (v) => (v === null ? 'ninguno' : `«${v}»`);
       const frases = cambio.map((c) => `${campos[c.campo] ?? c.campo}: ${c.antes === null ? valor(c.despues) : `de ${valor(c.antes)} a ${valor(c.despues)}`}.`);
-      return `${objeto.nombre}. ${frases.join(' ')}`;
+      // Una candidatura se nombra por su letra, que es lo que no cambia.
+      return `${objeto.tipo === 'candidatura' ? `Candidatura ${objeto.id}` : objeto.nombre}. ${frases.join(' ')}`;
     },
     errores: {
       'nombre-vacio': 'Escribe un nombre.',
       'nombre-largo': 'El nombre no puede pasar de 40 caracteres.',
       'nombre-repetido': 'Ya hay otro con ese nombre.',
+      'candidatura-larga': 'El nombre no puede pasar de 20 caracteres.',
+      'candidatura-repetida': 'Dos candidaturas no pueden llamarse igual.',
       'mesa-con-registros': 'Esta mesa tiene actas o reclamaciones: no se puede borrar ni cambiar de colegio. Se puede desactivar.',
       'colegio-con-mesas': 'Este colegio tiene mesas: no se puede borrar. Se puede desactivar.',
       'colegio-desactivado': 'El colegio está desactivado. Reactívalo antes.',
@@ -250,6 +258,17 @@ export const CONFIG = {
       sinColegios: 'No hay colegios en uso',
       sinColegiosTexto: 'Una mesa necesita un colegio en uso.',
       perfilDesactivado: 'Perfil desactivado',
+      candidaturas: 'Candidaturas',
+      candidaturasNota: 'Son siempre tres. Cambiar un nombre cambia solo la etiqueta: no toca ninguna acta ni ninguna cifra, y queda apuntado en la auditoría con el nombre anterior y el nuevo.',
+      candidatura: (id) => `Candidatura ${id}`,
+      candidaturaAyuda: (maximo) => `Hasta ${maximo} caracteres, sin repetir.`,
+      guardarCandidaturas: 'Guardar nombres',
+      candidaturasGuardadas: 'Nombres guardados.',
+      restaurarCandidaturas: 'Restaurar nombres por defecto',
+      restaurarTitulo: '¿Restaurar los nombres por defecto?',
+      restaurarTexto: (nombres) => `Las candidaturas vuelven a llamarse ${nombres}. Las actas y las cifras no cambian, y el cambio queda apuntado en la auditoría.`,
+      restaurarAceptar: 'Sí, restaurar',
+      candidaturasRestauradas: 'Nombres por defecto restaurados.',
     },
   },
 
@@ -410,6 +429,7 @@ export const CONFIG = {
       'perfil-desactivado': 'Perfil desactivado',
       'perfil-reactivado': 'Perfil reactivado',
       'asignacion-cambiada': 'Asignación cambiada',
+      'candidatura-renombrada': 'Candidatura renombrada',
     },
     detalle: {
       datosCargados: (colegios, mesas, perfiles) => `${colegios} colegios, ${mesas} mesas y ${perfiles} perfiles.`,

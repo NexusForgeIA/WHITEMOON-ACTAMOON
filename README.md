@@ -25,6 +25,10 @@ Todos los derechos reservados. Ver [Derechos](#derechos).
 - Gestión de colegios, mesas y equipo por el administrador: altas, ediciones,
   asignaciones y desactivaciones, todas apuntadas en la auditoría con el valor
   anterior y el nuevo. Lo que tiene actas o reclamaciones no se borra.
+- Nombres de las tres candidaturas editables por el administrador. Solo cambia
+  la etiqueta: las actas guardan las cifras por identificador (A, B, C). Los
+  PDF muestran el nombre vigente al generarlos; cada cambio queda en la
+  auditoría con el nombre anterior y el nuevo.
 - Uso sin conexión.
 - Portada de presentación.
 
@@ -34,7 +38,10 @@ Todos los derechos reservados. Ver [Derechos](#derechos).
   foto: sus únicas imágenes son el logo, los iconos y una ilustración dibujada.
 - La pantalla de captura avisa de que no se fotografíen actas reales. Las fotos
   que se hagan al probarla se quedan en el navegador de quien las hace.
-- No hay nombres de personas, partidos ni municipios reales.
+- No hay nombres de personas ni de municipios reales. Las tres candidaturas
+  llevan de partida las siglas PP, VOX y SALF; el administrador puede cambiar
+  esos nombres desde «Equipo». **Todas las cifras son inventadas**: la demo no
+  contiene ni publica resultados de ninguna elección.
 
 ## Qué es y qué no
 
@@ -113,6 +120,7 @@ js/actas.js              registros de acta y doble confirmación (módulo puro)
 js/auditoria.js          registro encadenado por huellas: crear y verificar (módulo puro)
 js/consolidado.js        panel: totales de actas validadas, provisional y desglose (módulo puro)
 js/gestion.js            altas, ediciones y desactivaciones, con sus reglas (módulo puro)
+js/candidaturas.js       nombres vigentes de las candidaturas (los de config.js o los editados)
 js/kpi.js                KPI de actividad: definiciones y fórmulas (módulo puro)
 js/pdf.js                generador de PDF propio, sin librerías (módulo puro)
 js/documentos.js         PDF de una mesa y PDF del panel (módulo puro)

@@ -1,6 +1,7 @@
 // Los dos documentos PDF de la demo: el de una mesa y el del panel. Modulo
 // puro: recibe los datos ya leidos y devuelve un Pdf.
 
+import { candidaturas } from './candidaturas.js';
 import { CONFIG } from './config.js';
 import { filasDeSuma } from './consolidado.js';
 import { textoDeDuracion, textoDeMedia, textoDeRazon } from './kpi.js';
@@ -45,11 +46,11 @@ export function pdfDeMesa({ mesa, colegio, acta, reclamaciones, perfiles, fotoJp
       { titulo: T.concepto, ancho: 0.7 },
       { titulo: T.valor, ancho: 0.3, derecha: true },
     ],
-    filasDeSuma(acta.cifras, CONFIG.acta.campos, CONFIG.candidaturas).map(([etiqueta, valor]) => [etiqueta, valor]),
+    filasDeSuma(acta.cifras, CONFIG.acta.campos, candidaturas()).map(([etiqueta, valor]) => [etiqueta, valor]),
   );
   if (acta.descuadre) {
     pdf.texto(T.conDescuadre, { fuente: 'negrita' });
-    for (const frase of frasesDescuadre(validaActa(acta.cifras, CONFIG.candidaturas), CONFIG.acta.textos)) pdf.texto(frase);
+    for (const frase of frasesDescuadre(validaActa(acta.cifras, candidaturas()), CONFIG.acta.textos)) pdf.texto(frase);
     pdf.texto(`${T.motivoDescuadre}: ${acta.descuadre.motivo}`);
   } else {
     pdf.texto(CONFIG.acta.textos.cuadra);
@@ -88,7 +89,7 @@ function tablaDeSuma(pdf, suma) {
       { titulo: T.concepto, ancho: 0.7 },
       { titulo: T.valor, ancho: 0.3, derecha: true },
     ],
-    [[T.mesasSumadas, suma.mesas], ...filasDeSuma(suma, CONFIG.acta.campos, CONFIG.candidaturas).map(([etiqueta, valor]) => [etiqueta, valor])],
+    [[T.mesasSumadas, suma.mesas], ...filasDeSuma(suma, CONFIG.acta.campos, candidaturas()).map(([etiqueta, valor]) => [etiqueta, valor])],
   );
 }
 
@@ -220,7 +221,7 @@ export function pdfDelPanel({ consolidado, kpi, perfiles, ambito, hora, generado
   pdf.texto(P.provisionalNota, { cuerpo: 9, gris: 0.35 });
   tablaDeSuma(pdf, consolidado.total.provisional);
 
-  const numeros = [...CONFIG.acta.campos.map((campo) => campo.corto), ...CONFIG.candidaturas.map((candidatura) => candidatura.id)];
+  const numeros = [...CONFIG.acta.campos.map((campo) => campo.corto), ...candidaturas().map((candidatura) => candidatura.id)];
   const columnas = [
     { titulo: T.mesa, ancho: 0.16 },
     { titulo: T.estado, ancho: 0.28 },
@@ -228,8 +229,10 @@ export function pdfDelPanel({ consolidado, kpi, perfiles, ambito, hora, generado
   ];
   const celdas = (cifras) => [
     ...CONFIG.acta.campos.map(({ id }) => cifras[id]),
-    ...CONFIG.candidaturas.map(({ id }) => cifras.candidaturas[id]),
+    ...candidaturas().map(({ id }) => cifras.candidaturas[id]),
   ];
+  pdf.subtitulo(P.desglose);
+  pdf.texto(P.leyenda(candidaturas()), { cuerpo: 9, gris: 0.35 });
   for (const grupo of consolidado.porColegio) {
     pdf.subtitulo(grupo.colegio.nombre);
     const filas = grupo.mesas.map(({ mesa, acta, estado }) => [
