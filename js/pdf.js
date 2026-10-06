@@ -235,6 +235,39 @@ export class Pdf {
     return this.espacio(4);
   }
 
+  // Barras horizontales: [{ etiqueta, texto, fraccion, relleno }]. La cifra va
+  // siempre escrita; el relleno (solido, rayado, cruzado o hueco) distingue
+  // las barras sin depender del tono.
+  barras(lista, { columna = 190, cifra = 120 } = {}) {
+    const alto = 18;
+    const ancho = UTIL - columna - cifra;
+    for (const { etiqueta, texto, fraccion, relleno = 'solido' } of lista) {
+      this.#reserva(alto);
+      this.#y -= alto;
+      const ops = this.#ops();
+      const x = MARGEN + columna + cifra;
+      const y = this.#y + 2;
+      const lleno = ancho * Math.max(0, Math.min(1, fraccion ?? 0));
+      this.#pinta(ops, etiqueta, MARGEN + 2, this.#y + 5, 'normal', 9);
+      this.#pinta(ops, texto, MARGEN + columna + cifra - 8 - anchoDeTexto(texto, 'normal', 9), this.#y + 5, 'normal', 9);
+      if (lleno > 0) {
+        if (relleno === 'solido') ops.push(`0.2 g ${n(x)} ${n(y)} ${n(lleno)} 10 re f`);
+        else if (relleno !== 'hueco') {
+          // Rayas recortadas al rectangulo lleno.
+          const rayas = [];
+          for (let d = -10; d < lleno; d += 4) {
+            rayas.push(`${n(x + d)} ${n(y)} m ${n(x + d + 10)} ${n(y + 10)} l`);
+            if (relleno === 'cruzado') rayas.push(`${n(x + d + 10)} ${n(y)} m ${n(x + d)} ${n(y + 10)} l`);
+          }
+          ops.push(`q ${n(x)} ${n(y)} ${n(lleno)} 10 re W n 0.2 G 0.7 w ${rayas.join(' ')} S Q`);
+        }
+        ops.push(`0.2 G 0.7 w ${n(x)} ${n(y)} ${n(lleno)} 10 re S`);
+      }
+      ops.push(`0.6 G 0.5 w ${n(x)} ${n(y)} ${n(ancho)} 10 re S`);
+    }
+    return this.espacio(4);
+  }
+
   // Incrusta un JPEG sin recodificarlo, ajustado al ancho util y a `altoMaximo`.
   imagen(jpeg, { altoMaximo = 360 } = {}) {
     const { ancho, alto, componentes } = dimensionesJpeg(jpeg);

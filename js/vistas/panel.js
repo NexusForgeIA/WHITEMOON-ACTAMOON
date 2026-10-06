@@ -162,7 +162,7 @@ export function vistaPanel({ estado, acciones }) {
 
       h('section', { class: 'grupo', 'aria-labelledby': 'panel-desglose' }, h('h2', { id: 'panel-desglose' }, T.desglose), consolidado.porColegio.map(desglose)),
 
-      h('div', { class: 'grupo' }, descargar),
+      h('div', { class: 'acciones' }, h('a', { class: 'boton', id: 'ver-actividad', href: '#/panel/actividad' }, icono('panel'), CONFIG.kpi.textos.enlace), descargar),
     ),
   };
 }

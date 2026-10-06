@@ -176,6 +176,17 @@ bloque('10 - Sin conexion y version nueva', [
     ('accent', 'accent-tint', AA_UI, 'foco del boton actualizar'),
 ])
 
+bloque('11 - Actividad (KPI)', [
+    ('ink', 'surface', AA, 'cifras e indicadores de las tablas'),
+    ('ink-2', 'surface-2', AA, 'cabeceras de las tablas'),
+    ('ink', 'pend-tint', AA, 'aviso de orientativo'),
+    ('muted', 'bg', AA, 'notas bajo las tablas'),
+    ('accent', 'surface', AA, 'enlace a la mesa pendiente'),
+    ('serie-1', 'surface', AA_UI, 'barra lisa'),
+    ('serie-2', 'surface', AA_UI, 'barra de rayas'),
+    ('serie-3', 'surface', AA_UI, 'barra de puntos y rejilla'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")

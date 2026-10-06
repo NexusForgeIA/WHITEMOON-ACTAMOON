@@ -3,6 +3,7 @@
 
 import { CONFIG } from './config.js';
 import { filasDeSuma } from './consolidado.js';
+import { textoDeDuracion, textoDeMedia, textoDeRazon } from './kpi.js';
 import { Pdf } from './pdf.js';
 import { frasesDescuadre, validaActa } from './validaciones.js';
 
@@ -91,7 +92,98 @@ function tablaDeSuma(pdf, suma) {
   );
 }
 
-export function pdfDelPanel({ consolidado, ambito, hora, generadoEn }) {
+// Seccion de actividad del PDF del panel: las mismas cifras que la pantalla.
+function actividadEnPdf(pdf, kpi, perfiles, hora) {
+  const K = CONFIG.kpi.textos;
+  const P = CONFIG.panel.textos;
+  const fraccion = (cuenta) => (kpi.base.mesas === 0 ? 0 : cuenta / kpi.base.mesas);
+  const dosColumnas = [
+    { titulo: K.indicador, ancho: 0.6 },
+    { titulo: K.valor, ancho: 0.4, derecha: true },
+  ];
+
+  pdf.subtitulo(K.titulo);
+  pdf.texto(K.aviso, { cuerpo: 9, gris: 0.35 });
+
+  pdf.subtitulo(K.cobertura);
+  pdf.barras([
+    { etiqueta: K.coberturaEnvio, texto: textoDeRazon(kpi.cobertura.envio, K), fraccion: kpi.cobertura.envio.valor, relleno: 'solido' },
+    { etiqueta: K.coberturaValidada, texto: textoDeRazon(kpi.cobertura.validada, K), fraccion: kpi.cobertura.validada.valor, relleno: 'rayado' },
+  ]);
+
+  pdf.subtitulo(K.estados);
+  pdf.barras([
+    { etiqueta: ESTADOS.validada, texto: K.de(kpi.estados.validada, kpi.base.mesas), fraccion: fraccion(kpi.estados.validada), relleno: 'solido' },
+    { etiqueta: ESTADOS.enviada, texto: K.de(kpi.estados.pendiente, kpi.base.mesas), fraccion: fraccion(kpi.estados.pendiente), relleno: 'rayado' },
+    { etiqueta: ESTADOS.devuelta, texto: K.de(kpi.estados.devuelta, kpi.base.mesas), fraccion: fraccion(kpi.estados.devuelta), relleno: 'cruzado' },
+    { etiqueta: ESTADOS['sin-acta'], texto: K.de(kpi.estados.sinActa, kpi.base.mesas), fraccion: fraccion(kpi.estados.sinActa), relleno: 'hueco' },
+  ]);
+  if (kpi.evolucion.columnas.length > 0) {
+    pdf.texto(`${K.evolucion}. ${K.evolucionNota(kpi.evolucion.tramoMinutos)}`, { cuerpo: 9, gris: 0.35 });
+    pdf.tabla(
+      [
+        { titulo: K.tramo, ancho: 0.4 },
+        ...[ESTADOS.validada, P.pendienteCorto, ESTADOS.devuelta, ESTADOS['sin-acta']].map((titulo) => ({ titulo, ancho: 0.15, derecha: true })),
+      ],
+      kpi.evolucion.columnas.map((columna) => [hora(columna.desde), columna.validada, columna.pendiente, columna.devuelta, columna.sinActa]),
+    );
+  }
+
+  pdf.subtitulo(K.calidad);
+  const versiones = kpi.calidad.versionesPorActa;
+  pdf.tabla(dosColumnas, [
+    [K.descuadre, textoDeRazon(kpi.calidad.descuadre, K)],
+    [K.devueltasAhora, textoDeRazon(kpi.calidad.devueltasAhora, K)],
+    [K.tasaDevolucion, textoDeRazon(kpi.calidad.tasaDevolucion, K)],
+    [K.versionesPorActa, versiones.valor === null ? K.sinDatos : `${textoDeMedia(versiones, K)} (${K.versionesBase(versiones.n, versiones.de)})`],
+  ]);
+
+  pdf.subtitulo(K.tiempos);
+  pdf.texto(`${K.orientativo} ${K.orientativoTexto}`, { fuente: 'negrita', cuerpo: 9 });
+  const tramos = [
+    [K.capturaEnvio, kpi.tiempos.capturaEnvio],
+    [K.envioValidacion, kpi.tiempos.envioValidacion],
+    [K.envioDevolucion, kpi.tiempos.envioDevolucion],
+    [K.cicloCompleto, kpi.tiempos.cicloCompleto],
+  ];
+  pdf.tabla(
+    [
+      { titulo: K.tramoTiempo, ancho: 0.46 },
+      { titulo: K.casos, ancho: 0.14, derecha: true },
+      { titulo: K.mediana, ancho: 0.2, derecha: true },
+      { titulo: K.maximo, ancho: 0.2, derecha: true },
+    ],
+    tramos.map(([etiqueta, tramo]) => [etiqueta, tramo.n, textoDeDuracion(tramo.mediana, K), textoDeDuracion(tramo.maximo, K)]),
+  );
+  const excluidas = tramos.reduce((suma, [, tramo]) => suma + tramo.excluidas, 0);
+  if (excluidas > 0) pdf.texto(K.excluidas(excluidas), { cuerpo: 9, gris: 0.35 });
+
+  pdf.subtitulo(K.pendientes);
+  if (kpi.pendientes.length === 0) pdf.texto(K.sinPendientes);
+  else pdf.tabla([{ titulo: P.mesa, ancho: 0.6 }, { titulo: K.esperando, ancho: 0.4, derecha: true }], kpi.pendientes.map(({ mesa, antiguedad }) => [mesa.nombre, textoDeDuracion(Math.max(0, antiguedad), K)]));
+
+  pdf.subtitulo(K.reclamaciones);
+  pdf.texto(K.reclamacionesTotal(kpi.reclamaciones.total));
+  pdf.tabla(
+    [{ titulo: K.colegioMesa, ancho: 0.7 }, { titulo: K.reclamaciones, ancho: 0.3, derecha: true }],
+    kpi.reclamaciones.porColegio.flatMap((grupo) => [[grupo.colegio.nombre, grupo.total], ...grupo.mesas.map(({ mesa, total }) => [`   ${mesa.nombre}`, total])]),
+  );
+
+  pdf.subtitulo(K.acciones);
+  pdf.texto(K.accionesNota, { cuerpo: 9, gris: 0.35 });
+  if (kpi.acciones.total === 0) {
+    pdf.texto(K.sinDatos);
+    return;
+  }
+  const columnasDeAcciones = (titulo) => [{ titulo, ancho: 0.7 }, { titulo: K.accionesColumna, ancho: 0.3, derecha: true }];
+  pdf.tabla(columnasDeAcciones(K.tipo), kpi.acciones.porTipo.map(({ accion, total }) => [CONFIG.auditoria.acciones[accion] ?? accion, K.de(total, kpi.acciones.total)]));
+  pdf.tabla(
+    columnasDeAcciones(K.perfil),
+    kpi.acciones.porPerfil.map(({ perfilId, total }) => [perfilId ? etiquetaDe(perfiles, perfilId) : CONFIG.auditoria.textos.sinPerfil, K.de(total, kpi.acciones.total)]),
+  );
+}
+
+export function pdfDelPanel({ consolidado, kpi, perfiles, ambito, hora, generadoEn }) {
   const pdf = new Pdf({ titulo: T.tituloPanel, cabecera: T.cabecera, pie: T.nota, fecha: new Date(generadoEn) });
   const P = CONFIG.panel.textos;
   const c = consolidado.contadores;
@@ -148,6 +240,8 @@ export function pdfDelPanel({ consolidado, ambito, hora, generadoEn }) {
     filas.push([P.subtotal, '', ...celdas(grupo.validadas)]);
     pdf.tabla(columnas, filas, { destacada: filas.length - 1 });
   }
+
+  if (kpi) actividadEnPdf(pdf, kpi, perfiles ?? [], hora);
 
   pdf.espacio(14);
   pdf.texto(T.nota, { fuente: 'negrita', cuerpo: 9 });
