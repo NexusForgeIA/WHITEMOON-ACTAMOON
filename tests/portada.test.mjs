@@ -33,11 +33,8 @@ test('la portada y config.js no contienen nada de la lista prohibida', () => {
   for (const ruta of ['portada.html', 'js/config.js', 'js/portada.js']) {
     lee(ruta)
       .split('\n')
-      // Excepciones: el valor de CONTACTO, que es el correo comercial, y la
-      // direccion publica de la demo en las etiquetas de vista previa (el nombre
-      // del repositorio va dentro de la direccion; el resto de la linea se revisa).
+      // Unica excepcion: el valor de CONTACTO, que es el correo comercial.
       .map((linea) => (linea.startsWith('export const CONTACTO = ') ? '' : linea))
-      .map((linea) => (/^\s*<meta (?:property="og:(?:url|image)"|name="twitter:image") /.test(linea) ? linea.replace('https://nexusforgeia.github.io/WHITEMOON-ACTAMOON/', '') : linea))
       .forEach((linea, i) => {
         for (const patron of PROHIBIDO) {
           if (patron.test(linea)) hallazgos.push(`${ruta}:${i + 1} ${patron} -> ${linea.trim()}`);
