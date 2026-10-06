@@ -105,6 +105,15 @@ bloque('4 - Contornos y foco (3:1)', [
     ('pend', 'pend-tint', AA_UI, 'borde del aviso de perfiles simulados'),
 ])
 
+bloque('5 - Portada', [
+    ('muted', 'surface', AA, 'nota del hero'),
+    ('accent', 'bg', AA, 'numero de paso y su aro'),
+    ('on-dark', 'ink', AA, 'titulos de la banda "Que no hace"'),
+    ('on-dark-muted', 'ink', AA, 'texto de la banda "Que no hace"'),
+    ('aviso', 'ink', AA_UI, 'icono de la banda "Que no hace"'),
+    ('accent', 'bg', AA_UI, 'icono de privacidad'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")

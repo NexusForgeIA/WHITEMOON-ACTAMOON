@@ -1,0 +1,295 @@
+/* Portada de presentacion. Se apoya en tokens.css y en los componentes de
+   app.css (cabecera, marca, boton, pie, icono); aqui solo va lo propio.
+   Cortes: 37.5rem (600px) y 56.25rem (900px). */
+
+body.portada {
+  display: block;
+  padding-bottom: 0;
+}
+
+html:has(body.portada) {
+  scroll-padding: 0;
+}
+
+/* El alto minimo evita que el pie salte cuando portada.js pinta el contenido. */
+.portada main {
+  min-height: 100vh;
+  padding: 0;
+}
+
+.portada h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.ancho {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0 var(--s-4);
+}
+
+.banda {
+  padding: var(--s-12) 0;
+}
+
+.banda h2 {
+  margin-bottom: var(--s-6);
+  font-size: var(--text-2xl);
+}
+
+.banda--clara,
+.hero {
+  background: var(--surface);
+}
+
+.banda--pagina {
+  background: var(--bg);
+}
+
+/* ---- Hero ----------------------------------------------------------------- */
+
+.hero {
+  border-bottom: 1px solid var(--line);
+}
+
+.hero .ancho {
+  display: grid;
+  gap: var(--s-8);
+}
+
+.hero h1 {
+  max-width: 16ch;
+  font-size: clamp(2rem, 1.2rem + 3.6vw, 3.25rem);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+.hero__frase {
+  max-width: 34rem;
+  margin-top: var(--s-4);
+  color: var(--ink-2);
+  font-size: var(--text-lg);
+  text-wrap: pretty;
+}
+
+.hero__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-top: var(--s-6);
+}
+
+.hero__acciones .boton {
+  text-decoration: none;
+}
+
+.hero__nota {
+  margin-top: var(--s-4);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.hero__imagen {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* ---- Como funciona: una secuencia real, por eso va numerada --------------- */
+
+.pasos {
+  display: grid;
+  gap: var(--s-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.pasos li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s-1) var(--s-4);
+  counter-increment: paso;
+}
+
+.pasos li::before {
+  content: counter(paso);
+  grid-row: 1 / span 2;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  line-height: calc(2.5rem - 4px);
+  text-align: center;
+}
+
+.pasos h3 {
+  align-self: center;
+}
+
+.pasos p {
+  grid-column: 2;
+  max-width: 34rem;
+}
+
+/* ---- Que ofrece ----------------------------------------------------------- */
+
+.ofrece {
+  display: grid;
+  gap: 0 var(--s-12);
+}
+
+.ofrece > div {
+  padding: var(--s-4) 0;
+  border-top: 1px solid var(--line);
+}
+
+.ofrece dt {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.ofrece dd {
+  max-width: 34rem;
+  margin-top: var(--s-1);
+}
+
+/* ---- Que no hace: la banda mas visible de la pagina ----------------------- */
+
+.banda--tinta {
+  background: var(--ink);
+  color: var(--on-dark-muted);
+}
+
+.banda--tinta h2,
+.banda--tinta h3 {
+  color: var(--on-dark);
+}
+
+.banda--tinta h2 {
+  margin-bottom: var(--s-2);
+}
+
+.banda__entradilla {
+  margin-bottom: var(--s-8);
+  font-size: var(--text-lg);
+}
+
+.nohace {
+  display: grid;
+  gap: var(--s-6) var(--s-12);
+}
+
+.nohace li {
+  display: flex;
+  gap: var(--s-3);
+}
+
+.nohace .icono {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--aviso);
+}
+
+.nohace p {
+  margin-top: var(--s-1);
+}
+
+/* ---- Privacidad ----------------------------------------------------------- */
+
+.privacidad {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.privacidad li {
+  display: flex;
+  gap: var(--s-3);
+  max-width: 40rem;
+  color: var(--ink);
+}
+
+.privacidad .icono {
+  color: var(--accent);
+}
+
+/* ---- Pie ------------------------------------------------------------------ */
+
+.portada .pie {
+  padding: var(--s-6) var(--s-4);
+  text-align: center;
+}
+
+/* ---- 600px ---------------------------------------------------------------- */
+
+@media (min-width: 37.5rem) {
+  .ancho {
+    padding: 0 var(--s-8);
+  }
+
+  .hero__acciones {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .ofrece,
+  .nohace {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---- 900px ---------------------------------------------------------------- */
+
+@media (min-width: 56.25rem) {
+  .banda {
+    padding: 5rem 0;
+  }
+
+  .portada .cabecera {
+    padding-inline: max(var(--s-8), calc((100% - 68rem) / 2 + var(--s-8)));
+  }
+
+  .hero .ancho {
+    grid-template-columns: 1.15fr 1fr;
+    align-items: center;
+  }
+
+  .hero__imagen {
+    max-width: none;
+  }
+
+  .pasos {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-8);
+  }
+
+  .pasos li {
+    grid-template-columns: 1fr;
+    align-content: start;
+    gap: var(--s-3);
+  }
+
+  .pasos li::before {
+    grid-row: auto;
+  }
+
+  .pasos p {
+    grid-column: 1;
+  }
+}
+
+@media (min-width: 64rem) {
+  .portada .pie {
+    display: block;
+  }
+}

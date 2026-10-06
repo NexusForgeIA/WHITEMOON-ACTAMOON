@@ -23,8 +23,13 @@ const APIS = [
 // Cualquier esquema de red, y las URL sin esquema del tipo //host/ruta.
 const URL_EXTERNA = /\b(?:https?|wss?|ftp):\/\/[^\s"'`)<>]+|(?<=["'(=]\s*)\/\/[\w.-]+\.[a-z]{2,}[^\s"'`)<>]*/gi;
 
-// Espacios de nombres XML: son identificadores, el navegador no los descarga.
-const PERMITIDAS = new Set(['http://www.w3.org/2000/svg']);
+const PERMITIDAS = new Set([
+  // Espacio de nombres XML: es un identificador, el navegador no lo descarga.
+  'http://www.w3.org/2000/svg',
+  // Enlace de salida del boton "Solicitar demo" de la portada. La pagina no lo
+  // carga: solo se abre si el visitante lo pulsa, y solo si CONTACTO es un telefono.
+  'https://wa.me/',
+]);
 
 function archivos(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entrada) => {
@@ -40,11 +45,11 @@ const codigo = archivos(RAIZ).map((ruta) => ({
   texto: readFileSync(ruta, 'utf8'),
 }));
 
-const html = () => codigo.find((archivo) => archivo.nombre === 'index.html').texto;
+const paginas = codigo.filter((archivo) => archivo.nombre.endsWith('.html'));
 
 test('hay codigo que revisar', () => {
   const nombres = codigo.map((archivo) => archivo.nombre);
-  for (const esperado of ['index.html', 'js/app.js', 'js/db.js', 'assets/css/app.css']) {
+  for (const esperado of ['index.html', 'portada.html', 'js/app.js', 'js/db.js', 'js/portada.js', 'assets/css/app.css']) {
     assert.ok(nombres.includes(esperado), `falta ${esperado}`);
   }
 });
@@ -95,24 +100,28 @@ test('los detectores detectan', () => {
   }
 });
 
-test('index.html lleva una CSP que solo permite el propio origen', () => {
-  const csp = /<meta http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(html())?.[1];
-  assert.ok(csp, 'falta la CSP');
-  const directivas = Object.fromEntries(
-    csp
-      .split(';')
-      .map((directiva) => directiva.trim().split(/\s+/))
-      .map(([nombre, ...valores]) => [nombre, valores]),
-  );
-  assert.deepEqual(directivas['default-src'], ["'self'"]);
-  assert.deepEqual(directivas['object-src'], ["'none'"]);
-  for (const [nombre, valores] of Object.entries(directivas)) {
-    for (const valor of valores) {
-      assert.ok(["'self'", "'none'", 'blob:', 'data:'].includes(valor), `${nombre} permite ${valor}`);
+test('cada pagina lleva una CSP que solo permite el propio origen', () => {
+  for (const { nombre, texto } of paginas) {
+    const csp = /<meta http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(texto)?.[1];
+    assert.ok(csp, `${nombre}: falta la CSP`);
+    const directivas = Object.fromEntries(
+      csp
+        .split(';')
+        .map((directiva) => directiva.trim().split(/\s+/))
+        .map(([directiva, ...valores]) => [directiva, valores]),
+    );
+    assert.deepEqual(directivas['default-src'], ["'self'"], nombre);
+    assert.deepEqual(directivas['object-src'], ["'none'"], nombre);
+    for (const [directiva, valores] of Object.entries(directivas)) {
+      for (const valor of valores) {
+        assert.ok(["'self'", "'none'", 'blob:', 'data:'].includes(valor), `${nombre}: ${directiva} permite ${valor}`);
+      }
     }
   }
 });
 
-test('index.html pide no indexar', () => {
-  assert.match(html(), /<meta name="robots" content="noindex, nofollow">/);
+test('cada pagina pide no indexar', () => {
+  for (const { nombre, texto } of paginas) {
+    assert.match(texto, /<meta name="robots" content="noindex, nofollow">/, nombre);
+  }
 });

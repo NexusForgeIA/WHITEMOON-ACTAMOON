@@ -12,6 +12,7 @@ const TRAZOS = {
   aviso: 'M12 4 2.5 20h19z M12 10v4 M12 17h.01',
   ok: `${CIRCULO} M8 12.5l3 3 5-6`,
   error: `${CIRCULO} M12 8v5 M12 16h.01`,
+  no: `${CIRCULO} M5.6 5.6l12.8 12.8`,
   pendiente: `${CIRCULO} M12 7v5l3 2`,
   adelante: 'M9 6l6 6-6 6',
   atras: 'M15 6l-6 6 6 6',

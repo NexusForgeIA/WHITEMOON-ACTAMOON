@@ -37,7 +37,8 @@ python scripts/verifica-contraste.py  # contraste AA de la paleta (lee assets/cs
 ## Estructura
 
 ```
-index.html               una sola página, rutas por hash
+index.html               la app: una sola página, rutas por hash
+portada.html             portada de presentación (textos en js/config.js)
 assets/css/tokens.css    paleta, tipografía y espaciado
 assets/css/app.css       componentes y disposición
 assets/fonts/            IBM Plex Sans y Mono (licencia OFL en OFL.txt)
