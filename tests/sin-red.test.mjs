@@ -23,6 +23,11 @@ const APIS = [
 // Cualquier esquema de red, y las URL sin esquema del tipo //host/ruta.
 const URL_EXTERNA = /\b(?:https?|wss?|ftp):\/\/[^\s"'`)<>]+|(?<=["'(=]\s*)\/\/[\w.-]+\.[a-z]{2,}[^\s"'`)<>]*/gi;
 
+// Unica llamada a fetch admitida: el Service Worker repitiendo, tal cual, la
+// peticion que le llega del navegador cuando no la tiene en cache. No puede
+// pedir otra URL ni salir del origen (el propio sw.js filtra antes por origen).
+const FETCH_PERMITIDO = { archivo: 'sw.js', codigo: 'fetch(event.request)' };
+
 const PERMITIDAS = new Set([
   // Espacio de nombres XML: es un identificador, el navegador no lo descarga.
   'http://www.w3.org/2000/svg',
@@ -49,7 +54,7 @@ const paginas = codigo.filter((archivo) => archivo.nombre.endsWith('.html'));
 
 test('hay codigo que revisar', () => {
   const nombres = codigo.map((archivo) => archivo.nombre);
-  for (const esperado of ['index.html', 'portada.html', 'js/app.js', 'js/db.js', 'js/portada.js', 'assets/css/app.css']) {
+  for (const esperado of ['index.html', 'portada.html', 'sw.js', 'manifest.webmanifest', 'js/app.js', 'js/db.js', 'js/offline.js', 'js/portada.js', 'assets/css/app.css']) {
     assert.ok(nombres.includes(esperado), `falta ${esperado}`);
   }
 });
@@ -58,12 +63,23 @@ test('el codigo no usa APIs de red', () => {
   const hallazgos = [];
   for (const { nombre, texto } of codigo) {
     texto.split('\n').forEach((linea, i) => {
+      const revisada = nombre === FETCH_PERMITIDO.archivo ? linea.replace(FETCH_PERMITIDO.codigo, '') : linea;
       for (const [api, patron] of APIS) {
-        if (patron.test(linea)) hallazgos.push(`${nombre}:${i + 1} usa ${api}`);
+        if (patron.test(revisada)) hallazgos.push(`${nombre}:${i + 1} usa ${api}`);
       }
     });
   }
   assert.deepEqual(hallazgos, []);
+});
+
+test('la excepcion de fetch es una sola linea de sw.js, y sw.js solo atiende su origen', () => {
+  const sw = codigo.find((archivo) => archivo.nombre === 'sw.js').texto;
+  assert.equal(sw.split('fetch(').length - 1, 1, 'una sola llamada a fetch en sw.js');
+  assert.ok(sw.includes(FETCH_PERMITIDO.codigo));
+  assert.match(sw, /url\.origin !== self\.location\.origin[^\n]*\) return;/, 'lo que no es del propio origen no se toca');
+  for (const { nombre, texto } of codigo) {
+    if (nombre !== 'sw.js') assert.ok(!/\bfetch\s*\(/.test(texto), `${nombre} no puede llamar a fetch`);
+  }
 });
 
 test('el codigo no contiene URL externas', () => {

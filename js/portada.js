@@ -1,6 +1,7 @@
 // Pinta portada.html a partir de PORTADA (config.js). Aqui no hay textos.
 
 import { PORTADA } from './config.js';
+import { preparaOffline } from './offline.js';
 import { enlaceDeContacto, h, icono } from './ui.js';
 
 const APP = './';
@@ -82,6 +83,7 @@ function privacidad({ titulo, items }) {
   );
 }
 
+preparaOffline();
 document.getElementById('entrar-demo').textContent = PORTADA.entrarDemo;
 document.getElementById('pie-aviso').textContent = PORTADA.pie;
 document
