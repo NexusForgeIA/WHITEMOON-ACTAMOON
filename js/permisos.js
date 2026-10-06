@@ -16,6 +16,7 @@ export const RUTAS = [
     roles: ['administrador', 'apoderado'],
     nav: { href: '#/panel', etiqueta: 'Panel', icono: 'panel' },
   },
+  { id: 'actividad', patron: /^#\/panel\/actividad$/, roles: ['administrador', 'apoderado'], padre: 'panel' },
   {
     id: 'organizacion',
     patron: /^#\/organizacion$/,

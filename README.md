@@ -15,9 +15,12 @@ Todos los derechos reservados. Ver [Derechos](#derechos).
 - Captura del acta: foto, huella SHA-256 del archivo, hora del dispositivo,
   cifras y validaciones aritméticas.
 - Doble confirmación por otro perfil, reclamaciones y registro de auditoría.
+- Panel consolidado (solo actas validadas, con lo enviado sin validar aparte) y
+  PDF por mesa y del panel, generados en el navegador.
+- Actividad: cobertura, estados y su evolución, calidad, tiempos orientativos,
+  reclamaciones, acciones y pendientes. Cada cifra lleva su base.
+- Uso sin conexión.
 - Portada de presentación.
-
-Pendiente: el consolidado por mesa, el PDF por mesa y el modo sin conexión.
 
 ## Fotos y datos
 
@@ -102,6 +105,7 @@ js/foto.js               huella del original y copia reducida a 1600 px
 js/actas.js              registros de acta y doble confirmación (módulo puro)
 js/auditoria.js          registro encadenado por huellas: crear y verificar (módulo puro)
 js/consolidado.js        panel: totales de actas validadas, provisional y desglose (módulo puro)
+js/kpi.js                KPI de actividad: definiciones y fórmulas (módulo puro)
 js/pdf.js                generador de PDF propio, sin librerías (módulo puro)
 js/documentos.js         PDF de una mesa y PDF del panel (módulo puro)
 js/offline.js            registro del Service Worker y avisos de conexión y de versión

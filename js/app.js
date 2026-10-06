@@ -4,10 +4,12 @@ import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
 import { pdfDelPanel, pdfDeMesa } from './documentos.js';
 import * as db from './db.js';
+import { calculaKpi } from './kpi.js';
 import { preparaOffline } from './offline.js';
-import { navegacion, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
+import { mesasVisibles, navegacion, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
 import { avisa, confirmar, descarga, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
 import { vistaActa } from './vistas/acta.js';
+import { vistaActividad } from './vistas/actividad.js';
 import { vistaAuditoria } from './vistas/auditoria.js';
 import { vistaAyuda } from './vistas/ayuda.js';
 import { formateaHora, vistaMensaje } from './vistas/comun.js';
@@ -24,6 +26,7 @@ const VISTAS = {
   acta: vistaActa,
   reclamacion: vistaReclamacion,
   panel: vistaPanel,
+  actividad: vistaActividad,
   auditoria: vistaAuditoria,
   organizacion: vistaOrganizacion,
   ayuda: vistaAyuda,
@@ -161,7 +164,17 @@ Object.assign(acciones, {
   },
 
   async descargarPdfPanel(consolidado, ambito) {
-    const pdf = pdfDelPanel({ consolidado, ambito, hora: formateaHora, generadoEn: ahora() });
+    const generadoEn = ahora();
+    const kpi = calculaKpi({
+      colegios: estado.colegios,
+      mesas: mesasVisibles(estado.perfil, estado.mesas),
+      actas: estado.actas,
+      reclamaciones: estado.reclamaciones,
+      auditoria: estado.auditoria,
+      ahora: generadoEn,
+      generales: estado.perfil.rol === 'administrador',
+    });
+    const pdf = pdfDelPanel({ consolidado, kpi, perfiles: estado.perfiles, ambito, hora: formateaHora, generadoEn });
     descarga(pdf.bytes(), CONFIG.pdf.textos.archivoPanel, 'application/pdf');
     avisa(CONFIG.pdf.textos.generando);
   },

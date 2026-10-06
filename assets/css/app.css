@@ -981,6 +981,25 @@ a.boton--secundario:hover {
     var(--serie-3);
 }
 
+/* Cuarta trama: rejilla clara, para lo que no tiene acta. */
+.barra__lleno--4 {
+  background:
+    repeating-linear-gradient(90deg, var(--serie-3) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(0deg, var(--serie-3) 0 1px, transparent 1px 5px),
+    var(--surface);
+}
+
+.tabla.tabla--kpi .num {
+  font-family: var(--font-mono);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tabla.tabla--kpi .tabla__barra {
+  width: 30%;
+  min-width: 5rem;
+}
+
 .provisional {
   padding: var(--s-4);
   border: 1px dashed var(--pend);
