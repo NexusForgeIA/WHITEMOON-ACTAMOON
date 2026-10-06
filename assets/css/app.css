@@ -6,6 +6,11 @@
   box-sizing: border-box;
 }
 
+/* Un display puesto por clase anularia el atributo hidden: aqui manda siempre. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -195,6 +200,32 @@ h1:focus {
 
 .cabecera__perfil:hover {
   background: var(--surface-2);
+  color: var(--ink);
+}
+
+/* ---- Avisos del sistema: sin conexion y version nueva --------------------- */
+
+.sistema__aviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  font-size: var(--text-sm);
+}
+
+.sistema__aviso span {
+  flex: 1 1 12rem;
+}
+
+.sistema__aviso--red {
+  background: var(--ink);
+  color: var(--on-dark);
+}
+
+.sistema__aviso--version {
+  border-bottom: 1px solid var(--accent);
+  background: var(--accent-tint);
   color: var(--ink);
 }
 
@@ -1112,10 +1143,11 @@ a.boton--secundario:hover {
   body {
     display: grid;
     grid-template-columns: 15rem 1fr;
-    grid-template-rows: auto auto 1fr auto;
+    grid-template-rows: auto auto auto 1fr auto;
     grid-template-areas:
       "banner banner"
       "cabecera cabecera"
+      "sistema sistema"
       "nav contenido"
       "nav pie";
     padding-bottom: 0;
@@ -1137,6 +1169,14 @@ a.boton--secundario:hover {
 
   .cabecera__ambito {
     display: inline;
+  }
+
+  .sistema {
+    grid-area: sistema;
+  }
+
+  .sistema__aviso {
+    padding: var(--s-2) var(--s-6);
   }
 
   .nav {

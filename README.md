@@ -61,15 +61,34 @@ La app está en la raíz y la portada en `portada.html`.
 ## Comprobaciones
 
 ```
-node --test                           # acta, hash, doble confirmación, auditoría, panel, PDF, permisos, ausencia de red, CSP, portada
+node --test                           # acta, hash, doble confirmación, auditoría, panel, PDF, sin conexión, permisos, ausencia de red, CSP, portada
 python scripts/verifica-contraste.py  # contraste AA de la paleta (lee assets/css/tokens.css)
 ```
+
+## Sin conexión
+
+`sw.js` guarda todos los archivos de la app al abrirla por primera vez y los
+sirve desde ahí, así que después abre y funciona sin red. Las rutas son
+relativas: vale igual en la raíz que bajo una subcarpeta.
+
+La lista de archivos y su versión se escriben solas:
+
+```
+node scripts/version-sw.mjs
+```
+
+Hay que ejecutarlo **cada vez que cambie un archivo de la app** y confirmar el
+`sw.js` que deja; `node --test` falla si no está al día. Al cambiar la versión,
+quien tenga la demo abierta ve «Hay una versión nueva» y decide cuándo
+actualizar: no se recarga sola.
 
 ## Estructura
 
 ```
 index.html               la app: una sola página, rutas por hash
 portada.html             portada de presentación (textos en js/config.js)
+sw.js                    Service Worker: guarda la app para usarla sin conexión
+manifest.webmanifest     nombre, colores e iconos al instalarla
 assets/css/tokens.css    paleta, tipografía y espaciado
 assets/css/app.css       componentes y disposición
 assets/fonts/            IBM Plex Sans y Mono (licencia OFL en OFL.txt)
@@ -85,9 +104,10 @@ js/auditoria.js          registro encadenado por huellas: crear y verificar (mó
 js/consolidado.js        panel: totales de actas validadas, provisional y desglose (módulo puro)
 js/pdf.js                generador de PDF propio, sin librerías (módulo puro)
 js/documentos.js         PDF de una mesa y PDF del panel (módulo puro)
+js/offline.js            registro del Service Worker y avisos de conexión y de versión
 js/datos-ejemplo.js      Municipio de Ejemplo: colegios, mesas y perfiles
 js/vistas/               una por pantalla
-scripts/                 verificación de contraste
+scripts/                 verificación de contraste y versión del Service Worker
 tests/                   node --test
 ```
 

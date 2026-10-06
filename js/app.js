@@ -4,6 +4,7 @@ import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
 import { pdfDelPanel, pdfDeMesa } from './documentos.js';
 import * as db from './db.js';
+import { preparaOffline } from './offline.js';
 import { navegacion, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
 import { avisa, confirmar, descarga, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
 import { vistaActa } from './vistas/acta.js';
@@ -301,6 +302,7 @@ function pintaContacto() {
 async function arranca() {
   preparaDialogo();
   pintaContacto();
+  preparaOffline();
   document.getElementById('ambito').textContent = `${CONFIG.eleccion.tipo} · ${CONFIG.eleccion.ambito}`;
   try {
     await recarga();

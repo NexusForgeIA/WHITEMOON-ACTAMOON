@@ -20,6 +20,7 @@ const TRAZOS = {
   registro: 'M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h3',
   panel: 'M4 20V10 M10 20V4 M16 20v-7 M3 20h18',
   descarga: 'M12 4v11 M7 11l5 5 5-5 M5 20h14',
+  'sin-red': 'M3 3l18 18 M8.5 16.5a5 5 0 0 1 7 0 M5 13a10 10 0 0 1 4-2.6 M19 13a10 10 0 0 0-5-2.9 M12 20h.01',
   pendiente: `${CIRCULO} M12 7v5l3 2`,
   adelante: 'M9 6l6 6-6 6',
   atras: 'M15 6l-6 6 6 6',

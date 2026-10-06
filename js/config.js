@@ -191,6 +191,15 @@ export const CONFIG = {
     },
   },
 
+  // Uso sin conexion (Service Worker).
+  offline: {
+    textos: {
+      sinConexion: 'Sin conexión. La demo sigue funcionando con lo guardado en este dispositivo.',
+      versionNueva: 'Hay una versión nueva.',
+      actualizar: 'Actualizar',
+    },
+  },
+
   reclamaciones: {
     textoMinimo: 10,
     textos: {

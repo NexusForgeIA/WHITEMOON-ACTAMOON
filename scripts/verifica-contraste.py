@@ -168,6 +168,14 @@ bloque('9 - Panel consolidado', [
     ('line-strong', 'surface', AA_UI, 'contorno de la barra'),
 ])
 
+bloque('10 - Sin conexion y version nueva', [
+    ('on-dark', 'ink', AA, 'aviso de sin conexion'),
+    ('ink', 'accent-tint', AA, 'aviso de version nueva'),
+    ('surface', 'accent', AA, 'boton actualizar'),
+    ('accent', 'accent-tint', AA_UI, 'icono y borde del aviso de version nueva'),
+    ('accent', 'accent-tint', AA_UI, 'foco del boton actualizar'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")
