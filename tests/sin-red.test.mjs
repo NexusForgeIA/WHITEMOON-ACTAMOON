@@ -39,7 +39,7 @@ const PERMITIDAS = new Set([
 // Etiquetas de vista previa (WhatsApp y redes): tienen que llevar la direccion
 // publica completa. La pagina no la pide: la lee quien comparte el enlace.
 // Solo valen en estas tres etiquetas de los HTML y solo hacia la propia demo.
-const PUBLICA = 'https://nexusforgeia.github.io/WHITEMOON-ACTAMOON/';
+const PUBLICA = 'https://actamoon.netlify.app/';
 const VISTA_PREVIA = /^\s*<meta (?:property="og:(?:url|image)"|name="twitter:image") content="([^"]+)">\s*$/;
 const esVistaPrevia = (nombre, linea) => nombre.endsWith('.html') && (VISTA_PREVIA.exec(linea)?.[1] ?? '').startsWith(PUBLICA);
 
