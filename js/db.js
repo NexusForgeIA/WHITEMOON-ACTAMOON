@@ -2,7 +2,7 @@
 // este navegador.
 
 const NOMBRE = 'actamoon';
-const VERSION = 2;
+const VERSION = 3;
 
 // Para anadir un almacen: se declara aqui y se sube VERSION. La actualizacion
 // solo crea lo que falta, asi que no borra datos existentes.
@@ -13,6 +13,10 @@ const ALMACENES = {
   perfiles: { keyPath: 'id' },
   actas: { keyPath: 'id' },
   fotos: { keyPath: 'id' },
+  reclamaciones: { keyPath: 'id' },
+  // Solo se anade: guardar una entrada con un seq que ya existe hace fallar
+  // toda la transaccion.
+  auditoria: { keyPath: 'seq', soloAnadir: true },
 };
 
 export class ErrorAlmacenamiento extends Error {
@@ -31,7 +35,7 @@ function abrir() {
     peticion.onupgradeneeded = () => {
       const db = peticion.result;
       for (const [nombre, opciones] of Object.entries(ALMACENES)) {
-        if (!db.objectStoreNames.contains(nombre)) db.createObjectStore(nombre, opciones);
+        if (!db.objectStoreNames.contains(nombre)) db.createObjectStore(nombre, { keyPath: opciones.keyPath });
       }
     };
     peticion.onsuccess = () => resolve(peticion.result);
@@ -74,7 +78,10 @@ export function guardar(lotes) {
   return transaccion(Object.keys(lotes), 'readwrite', (tx) => {
     for (const [almacen, valores] of Object.entries(lotes)) {
       const store = tx.objectStore(almacen);
-      for (const valor of valores) store.put(valor);
+      for (const valor of valores) {
+        if (ALMACENES[almacen].soloAnadir) store.add(valor);
+        else store.put(valor);
+      }
     }
   });
 }

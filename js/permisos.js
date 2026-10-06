@@ -9,11 +9,18 @@ export const RUTAS = [
   { id: 'mesas', patron: /^#\/mesas$/, roles: TODOS, nav: { href: '#/mesas', etiqueta: 'Mesas', icono: 'mesas' } },
   { id: 'mesa', patron: /^#\/mesa\/([\w-]+)$/, roles: TODOS, padre: 'mesas' },
   { id: 'acta', patron: /^#\/mesa\/([\w-]+)\/acta$/, roles: ['interventor'], padre: 'mesas' },
+  { id: 'reclamacion', patron: /^#\/mesa\/([\w-]+)\/reclamacion$/, roles: ['interventor', 'apoderado'], padre: 'mesas' },
   {
     id: 'organizacion',
     patron: /^#\/organizacion$/,
     roles: ['administrador'],
-    nav: { href: '#/organizacion', etiqueta: 'Organización', icono: 'organizacion' },
+    nav: { href: '#/organizacion', etiqueta: 'Equipo', icono: 'organizacion' },
+  },
+  {
+    id: 'auditoria',
+    patron: /^#\/auditoria$/,
+    roles: ['administrador'],
+    nav: { href: '#/auditoria', etiqueta: 'Auditoría', icono: 'registro' },
   },
   { id: 'ayuda', patron: /^#\/ayuda$/, roles: null, nav: { href: '#/ayuda', etiqueta: 'Ayuda', icono: 'ayuda' } },
 ];
@@ -45,6 +52,20 @@ export function mesasVisibles(perfil, mesas) {
 // Solo el interventor de la mesa captura su acta.
 export function puedeCapturar(perfil, mesa) {
   return perfil?.rol === 'interventor' && perfil.mesaIds.includes(mesa.id);
+}
+
+// Valida o devuelve el apoderado del colegio o el administrador; nunca quien
+// envio el acta, y solo mientras esta enviada.
+export function puedeValidar(perfil, mesa, acta) {
+  if (!perfil || acta?.estado !== 'enviada' || perfil.id === acta.enviadaPor) return false;
+  if (perfil.rol === 'administrador') return true;
+  return perfil.rol === 'apoderado' && perfil.colegioIds.includes(mesa.colegioId);
+}
+
+// Reclaman el interventor de la mesa y el apoderado de su colegio.
+export function puedeReclamar(perfil, mesa) {
+  if (perfil?.rol === 'interventor') return perfil.mesaIds.includes(mesa.id);
+  return perfil?.rol === 'apoderado' && perfil.colegioIds.includes(mesa.colegioId);
 }
 
 // Donde aterriza cada perfil al elegirlo.

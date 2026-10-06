@@ -5,11 +5,11 @@ import { apoderadoDe, interventorDe } from './comun.js';
 // Quien cubre que. Solo para el administrador.
 export function vistaOrganizacion({ estado }) {
   return {
-    titulo: 'Organización',
+    titulo: 'Equipo',
     nodo: h(
       'div',
       { class: 'vista' },
-      h('h1', { tabindex: '-1' }, 'Organización'),
+      h('h1', { tabindex: '-1' }, 'Equipo'),
       h('p', { class: 'entradilla' }, `${CONFIG.eleccion.ambito} · quién cubre cada colegio y cada mesa`),
       estado.colegios.map((colegio) =>
         h(

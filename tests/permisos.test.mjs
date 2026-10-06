@@ -46,6 +46,7 @@ test('el interventor solo ve su mesa', () => {
   const p = perfil('interventor-3');
   assert.deepEqual(ids(navegacion(p)), ['inicio', 'mesas', 'ayuda']);
   assert.equal(puedeVer(p, ruta('#/organizacion')), false);
+  assert.equal(puedeVer(p, ruta('#/auditoria')), false);
   assert.deepEqual(ids(mesasVisibles(p, mesas)), ['mesa-003']);
   assert.equal(rutaInicial(p), '#/mesa/mesa-003');
 });
@@ -54,6 +55,7 @@ test('el apoderado solo ve las mesas de sus colegios', () => {
   const uno = perfil('apoderado-1');
   assert.deepEqual(ids(navegacion(uno)), ['inicio', 'mesas', 'ayuda']);
   assert.equal(puedeVer(uno, ruta('#/organizacion')), false);
+  assert.equal(puedeVer(uno, ruta('#/auditoria')), false);
   assert.deepEqual(ids(mesasVisibles(uno, mesas)), ['mesa-001', 'mesa-002', 'mesa-003', 'mesa-004']);
   assert.deepEqual(ids(mesasVisibles(perfil('apoderado-2'), mesas)), ['mesa-005', 'mesa-006']);
   assert.equal(rutaInicial(uno), '#/mesas');
@@ -61,7 +63,8 @@ test('el apoderado solo ve las mesas de sus colegios', () => {
 
 test('el administrador lo ve todo', () => {
   const p = perfil('administrador');
-  assert.deepEqual(ids(navegacion(p)), ['inicio', 'mesas', 'organizacion', 'ayuda']);
+  assert.deepEqual(ids(navegacion(p)), ['inicio', 'mesas', 'organizacion', 'auditoria', 'ayuda']);
   assert.equal(puedeVer(p, ruta('#/organizacion')), true);
+  assert.equal(puedeVer(p, ruta('#/auditoria')), true);
   assert.equal(mesasVisibles(p, mesas).length, mesas.length);
 });

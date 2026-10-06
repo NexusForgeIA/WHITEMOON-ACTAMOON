@@ -142,6 +142,20 @@ bloque('7 - Captura de acta', [
     ('accent', 'surface', AA_UI, 'casilla marcada'),
 ])
 
+bloque('8 - Validacion, reclamaciones y auditoria', [
+    ('ok', 'ok-tint', AA, 'chip validada'),
+    ('err', 'err-tint', AA, 'chip devuelta'),
+    ('ink', 'ok-tint', AA, 'nota: validada por, y cadena que encaja'),
+    ('ink', 'err-tint', AA, 'nota: acta devuelta, y cadena rota'),
+    ('ink', 'pend-tint', AA, 'aviso de la cadena y actas por validar'),
+    ('pend', 'pend-tint', AA_UI, 'icono y borde de esos avisos'),
+    ('surface', 'err', AA, 'boton confirmar devolucion'),
+    ('muted', 'surface', AA, 'autor y hora de reclamaciones y entradas'),
+    ('ink', 'surface', AA, 'texto de la reclamacion, accion y huella de la entrada'),
+    ('ink-2', 'surface', AA, 'detalle de la entrada'),
+    ('err', 'surface', AA_UI, 'borde del bloque de devolucion'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")

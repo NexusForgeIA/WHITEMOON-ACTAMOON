@@ -28,10 +28,15 @@ export function apoderadoDe(estado, colegioId) {
 // Estado de la mesa segun su acta vigente.
 export function chipsDeMesa(acta) {
   if (!acta) return h('span', { class: 'chip chip--neutro' }, icono('pendiente'), 'Sin acta');
+  const [clase, simbolo, etiqueta] = {
+    enviada: ['chip--pend', 'pendiente', 'Pendiente de validar'],
+    validada: ['chip--ok', 'ok', 'Validada'],
+    devuelta: ['chip--err', 'no', 'Devuelta'],
+  }[acta.estado];
   return h(
     'span',
     { class: 'chips' },
-    h('span', { class: 'chip chip--pend' }, icono('pendiente'), 'Pendiente de validar'),
+    h('span', { class: `chip ${clase}` }, icono(simbolo), etiqueta),
     acta.descuadre && h('span', { class: 'chip chip--err' }, icono('aviso'), 'Descuadre'),
   );
 }

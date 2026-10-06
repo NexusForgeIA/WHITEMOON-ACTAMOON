@@ -17,6 +17,7 @@ const TRAZOS = {
   error: `${CIRCULO} M12 8v5 M12 16h.01`,
   no: `${CIRCULO} M5.6 5.6l12.8 12.8`,
   camara: 'M4 8h3l1.5-2h7L17 8h3v11H4z M12 16.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+  registro: 'M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h3',
   pendiente: `${CIRCULO} M12 7v5l3 2`,
   adelante: 'M9 6l6 6-6 6',
   atras: 'M15 6l-6 6 6 6',
