@@ -10,6 +10,9 @@ Todos los derechos reservados. Ver [Derechos](#derechos).
 
 ## Qué hay hoy
 
+- Pantalla de entrada: la primera vez, una bienvenida con «Probar la demo»;
+  después, un selector con una tarjeta por rol; y con perfil elegido, entra
+  directo en su pantalla. «Cambiar de perfil» está siempre en la cabecera.
 - Perfiles simulados y datos de ejemplo (Municipio de Ejemplo, colegios y mesas
   numerados, candidaturas A, B y C).
 - Captura del acta: foto, huella SHA-256 del archivo, hora del dispositivo,

@@ -34,7 +34,7 @@ test('las rutas se resuelven por hash', () => {
 });
 
 test('sin perfil solo se ven las vistas publicas', () => {
-  assert.deepEqual(ids(navegacion(null)), ['inicio', 'ayuda']);
+  assert.deepEqual(ids(navegacion(null)), ['perfil', 'ayuda']);
   assert.equal(puedeVer(null, ruta('#/mesas')), false);
   assert.equal(puedeVer(null, ruta('#/mesa/mesa-001')), false);
   assert.equal(puedeVer(null, ruta('#/organizacion')), false);
@@ -44,7 +44,7 @@ test('sin perfil solo se ven las vistas publicas', () => {
 
 test('el interventor solo ve su mesa', () => {
   const p = perfil('interventor-3');
-  assert.deepEqual(ids(navegacion(p)), ['inicio', 'mesas', 'ayuda']);
+  assert.deepEqual(ids(navegacion(p)), ['perfil', 'mesas', 'ayuda']);
   assert.equal(puedeVer(p, ruta('#/organizacion')), false);
   assert.equal(puedeVer(p, ruta('#/auditoria')), false);
   assert.equal(puedeVer(p, ruta('#/panel')), false);
@@ -54,7 +54,7 @@ test('el interventor solo ve su mesa', () => {
 
 test('el apoderado solo ve las mesas de sus colegios', () => {
   const uno = perfil('apoderado-1');
-  assert.deepEqual(ids(navegacion(uno)), ['inicio', 'mesas', 'panel', 'ayuda']);
+  assert.deepEqual(ids(navegacion(uno)), ['perfil', 'mesas', 'panel', 'ayuda']);
   assert.equal(puedeVer(uno, ruta('#/panel')), true);
   assert.equal(puedeVer(uno, ruta('#/organizacion')), false);
   assert.equal(puedeVer(uno, ruta('#/auditoria')), false);

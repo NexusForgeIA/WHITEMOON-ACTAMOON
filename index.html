@@ -48,12 +48,13 @@
   <link rel="modulepreload" href="js/vistas/ayuda.js">
   <script type="module" src="js/app.js"></script>
 </head>
-<body>
+<body class="arrancando">
   <a class="salto" href="#contenido">Saltar al contenido</a>
 
   <p class="banner" role="note">
     <svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4 2.5 20h19z M12 10v4 M12 17h.01"/></svg>
-    <span><strong>Demo de presentación con datos ficticios.</strong> No es un sistema oficial ni publica resultados.</span>
+    <span id="banner-app"><strong>Demo de presentación con datos ficticios.</strong> No es un sistema oficial ni publica resultados.</span>
+    <span id="banner-entrada" hidden><strong>Demo con datos ficticios.</strong> No uses actas reales.</span>
   </p>
 
   <header class="cabecera">
@@ -61,7 +62,7 @@
       <img src="assets/img/actamoon-logo.svg" alt="ACTAMOON" width="275" height="64">
     </a>
     <span class="cabecera__ambito" id="ambito"></span>
-    <a class="cabecera__perfil" id="perfil-activo" href="#/"></a>
+    <a class="cabecera__perfil" id="perfil-activo" href="#/perfil" hidden></a>
   </header>
 
   <nav class="nav" aria-label="Principal">

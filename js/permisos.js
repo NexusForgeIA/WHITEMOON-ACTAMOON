@@ -5,7 +5,9 @@ const TODOS = ['administrador', 'apoderado', 'interventor'];
 
 // roles: null = vista publica, no necesita perfil.
 export const RUTAS = [
-  { id: 'inicio', patron: /^#?\/?$/, roles: null, nav: { href: '#/', etiqueta: 'Perfil', icono: 'perfil' } },
+  // El arranque decide solo: bienvenida, selector o la pantalla del perfil.
+  { id: 'inicio', patron: /^#?\/?$/, roles: null },
+  { id: 'perfil', patron: /^#\/perfil$/, roles: null, nav: { href: '#/perfil', etiqueta: 'Perfil', icono: 'perfil' } },
   { id: 'mesas', patron: /^#\/mesas$/, roles: TODOS, nav: { href: '#/mesas', etiqueta: 'Mesas', icono: 'mesas' } },
   { id: 'mesa', patron: /^#\/mesa\/([\w-]+)$/, roles: TODOS, padre: 'mesas' },
   { id: 'acta', patron: /^#\/mesa\/([\w-]+)\/acta$/, roles: ['interventor'], padre: 'mesas' },
@@ -53,7 +55,7 @@ const MAXIMO_NAV = 5;
 
 export function navegacion(perfil) {
   const destinos = RUTAS.filter((ruta) => ruta.nav && puedeVer(perfil, ruta)).map((ruta) => ({ id: ruta.id, ...ruta.nav }));
-  return destinos.length > MAXIMO_NAV ? destinos.filter((destino) => destino.id !== 'inicio') : destinos;
+  return destinos.length > MAXIMO_NAV ? destinos.filter((destino) => destino.id !== 'perfil') : destinos;
 }
 
 export function mesasVisibles(perfil, mesas) {
@@ -86,6 +88,21 @@ export function puedeReclamar(perfil, mesa) {
 
 // Donde aterriza cada perfil al elegirlo.
 export function rutaInicial(perfil) {
+  if (perfil.rol === 'administrador') return '#/panel';
   if (perfil.rol === 'interventor' && perfil.mesaIds.length === 1) return `#/mesa/${perfil.mesaIds[0]}`;
   return '#/mesas';
+}
+
+// El perfil guardado como activo, si sigue existiendo y en uso.
+export function perfilVigente(perfiles, id) {
+  const perfil = perfiles.find((p) => p.id === id);
+  return perfil && perfil.activo !== false ? perfil : null;
+}
+
+// Que se ve al abrir la app: la bienvenida si no hay datos, el selector si no
+// hay perfil vigente, o directamente la pantalla de inicio del perfil.
+export function arranque(perfiles, perfil) {
+  if (perfiles.length === 0) return { vista: 'bienvenida' };
+  if (!perfil || perfil.activo === false) return { vista: 'selector' };
+  return { ir: rutaInicial(perfil) };
 }
