@@ -1,0 +1,93 @@
+/* Tokens de ACTAMOON: tinta + petroleo.
+   scripts/verifica-contraste.py lee los colores de este archivo: si se anade
+   un par texto/fondo nuevo, hay que anadirlo alli. */
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/IBMPlexSans-Regular-Latin1.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/IBMPlexSans-SemiBold-Latin1.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/IBMPlexMono-Regular-Latin1.woff2") format("woff2");
+}
+
+:root {
+  /* Fondos */
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --surface-2: #e8ebef;
+
+  /* Texto */
+  --ink: #16202b;
+  --ink-2: #37424f;
+  --muted: #56616f;
+
+  /* Lineas: --line es decorativa, --line-strong delimita controles (3:1) */
+  --line: #cfd4db;
+  --line-strong: #6f7986;
+
+  /* Acento */
+  --accent: #0b5c66;
+  --accent-hover: #08474f;
+  --accent-tint: #dfecee;
+
+  /* Sobre tinta (cabecera y barra inferior) */
+  --on-dark: #f3f4f6;
+  --on-dark-muted: #b7c0cb;
+  --accent-on-dark: #8fd0d8;
+
+  /* Aviso de demo */
+  --aviso: #f2c24b;
+
+  /* Estados: siempre con icono y texto, nunca solo color */
+  --ok: #1c6b3c;
+  --ok-tint: #e1f0e6;
+  --pend: #7a4a00;
+  --pend-tint: #faedd2;
+  --err: #a1261d;
+  --err-hover: #7f1d16;
+  --err-tint: #fae5e2;
+
+  /* Tipografia */
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+
+  /* Espaciado */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
+  --s-12: 3rem;
+
+  /* Forma */
+  --radius-sm: 4px;
+  --radius: 6px;
+  --control: 3.5rem; /* alto de boton: 56px */
+
+  /* Capas */
+  --z-banner: 10;
+  --z-nav: 20;
+}

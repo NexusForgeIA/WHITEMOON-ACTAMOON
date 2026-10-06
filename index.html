@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="ACTAMOON: demo de presentación con datos ficticios. No es un sistema oficial ni publica resultados.">
+  <meta name="theme-color" content="#ffffff">
+  <title>ACTAMOON (demo)</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icons/actamoon-favicon.svg">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="preload" href="assets/fonts/IBMPlexSans-Regular-Latin1.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/IBMPlexSans-SemiBold-Latin1.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="modulepreload" href="js/actas.js">
+  <link rel="modulepreload" href="js/config.js">
+  <link rel="modulepreload" href="js/contacto.js">
+  <link rel="modulepreload" href="js/datos-ejemplo.js">
+  <link rel="modulepreload" href="js/db.js">
+  <link rel="modulepreload" href="js/foto.js">
+  <link rel="modulepreload" href="js/hash.js">
+  <link rel="modulepreload" href="js/permisos.js">
+  <link rel="modulepreload" href="js/ui.js">
+  <link rel="modulepreload" href="js/validaciones.js">
+  <link rel="modulepreload" href="js/vistas/acta.js">
+  <link rel="modulepreload" href="js/vistas/comun.js">
+  <link rel="modulepreload" href="js/vistas/inicio.js">
+  <link rel="modulepreload" href="js/vistas/mesas.js">
+  <link rel="modulepreload" href="js/vistas/organizacion.js">
+  <link rel="modulepreload" href="js/vistas/ayuda.js">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="salto" href="#contenido">Saltar al contenido</a>
+
+  <p class="banner" role="note">
+    <svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4 2.5 20h19z M12 10v4 M12 17h.01"/></svg>
+    <span><strong>Demo de presentación con datos ficticios.</strong> No es un sistema oficial ni publica resultados.</span>
+  </p>
+
+  <header class="cabecera">
+    <a class="marca" href="#/">
+      <img src="assets/img/actamoon-logo.svg" alt="ACTAMOON" width="275" height="64">
+    </a>
+    <span class="cabecera__ambito" id="ambito"></span>
+    <a class="cabecera__perfil" id="perfil-activo" href="#/"></a>
+  </header>
+
+  <nav class="nav" aria-label="Principal">
+    <ul id="nav-lista" role="list"></ul>
+  </nav>
+
+  <main id="contenido" tabindex="-1">
+    <noscript><p class="vista">ACTAMOON necesita JavaScript para funcionar.</p></noscript>
+  </main>
+  <div id="avisos" class="avisos" role="status" aria-live="polite"></div>
+
+  <footer class="pie">
+    <p>Demo de presentación. Datos ficticios, guardados solo en este navegador. Sin cookies ni analítica.</p>
+    <p class="pie__contacto" id="pie-contacto" hidden></p>
+    <p><a href="#/ayuda">Qué no demuestra esta demo</a></p>
+  </footer>
+
+  <dialog id="dialogo" class="dialogo" aria-labelledby="dialogo-titulo" aria-describedby="dialogo-texto">
+    <h2 id="dialogo-titulo"></h2>
+    <p id="dialogo-texto"></p>
+    <div class="dialogo__acciones">
+      <button type="button" class="boton boton--secundario" id="dialogo-no" autofocus>Cancelar</button>
+      <button type="button" class="boton boton--peligro" id="dialogo-si"></button>
+    </div>
+  </dialog>
+</body>
+</html>
