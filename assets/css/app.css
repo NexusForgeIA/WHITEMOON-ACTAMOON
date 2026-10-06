@@ -1386,7 +1386,9 @@ a.boton--secundario:hover {
 
   body {
     display: grid;
-    grid-template-columns: 15rem 1fr;
+    /* minmax(0, …): el contenido no ensancha la columna; una tabla ancha se
+       desplaza dentro de su caja en vez de empujar toda la pagina. */
+    grid-template-columns: 15rem minmax(0, 1fr);
     grid-template-rows: auto auto auto 1fr auto;
     grid-template-areas:
       "banner banner"

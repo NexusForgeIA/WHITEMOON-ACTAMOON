@@ -10,7 +10,7 @@
 // ejecutarlo cada vez que cambie un archivo de la app. Un test falla si no
 // estan al dia.
 
-const VERSION = "2c314a537fee";
+const VERSION = "e3deaa88cfc6";
 const PRECACHE = [
   "./",
   "assets/css/app.css",
