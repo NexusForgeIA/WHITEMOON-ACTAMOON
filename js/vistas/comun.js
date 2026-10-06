@@ -1,3 +1,4 @@
+import { CONFIG } from '../config.js';
 import { h, icono } from '../ui.js';
 
 const lista = new Intl.ListFormat('es', { type: 'conjunction' });
@@ -23,6 +24,19 @@ export function interventorDe(estado, mesaId) {
 
 export function apoderadoDe(estado, colegioId) {
   return estado.perfiles.find((perfil) => perfil.rol === 'apoderado' && perfil.colegioIds.includes(colegioId));
+}
+
+// "En uso" o "Desactivado", para colegios, mesas y perfiles.
+export function chipDeEstado(cosa) {
+  const T = CONFIG.gestion.textos;
+  return cosa.activo !== false
+    ? h('span', { class: 'chip chip--ok' }, icono('ok'), T.enUso)
+    : h('span', { class: 'chip chip--neutro' }, icono('no'), T.fueraDeUso);
+}
+
+// Marca de mesa cerrada a cambios; nada si esta en uso.
+export function chipCerrada(mesa) {
+  return mesa.activo === false ? h('span', { class: 'chip chip--neutro' }, icono('no'), CONFIG.gestion.textos.cerrada) : null;
 }
 
 // Estado de la mesa segun su acta vigente.

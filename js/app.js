@@ -4,13 +4,15 @@ import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
 import { pdfDelPanel, pdfDeMesa } from './documentos.js';
 import * as db from './db.js';
+import * as gestion from './gestion.js';
 import { calculaKpi } from './kpi.js';
 import { preparaOffline } from './offline.js';
-import { mesasVisibles, navegacion, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
+import { mesasVisibles, navegacion, puedeCapturar, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
 import { avisa, confirmar, descarga, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
 import { vistaActa } from './vistas/acta.js';
 import { vistaActividad } from './vistas/actividad.js';
 import { vistaAuditoria } from './vistas/auditoria.js';
+import { vistaGestionColegio, vistaGestionMesa } from './vistas/gestion.js';
 import { vistaAyuda } from './vistas/ayuda.js';
 import { formateaHora, vistaMensaje } from './vistas/comun.js';
 import { vistaInicio } from './vistas/inicio.js';
@@ -27,6 +29,8 @@ const VISTAS = {
   reclamacion: vistaReclamacion,
   panel: vistaPanel,
   actividad: vistaActividad,
+  'gestion-colegio': vistaGestionColegio,
+  'gestion-mesa': vistaGestionMesa,
   auditoria: vistaAuditoria,
   organizacion: vistaOrganizacion,
   ayuda: vistaAyuda,
@@ -52,6 +56,7 @@ async function guardaConRegistro(lotes, accion, mesaId, detalle) {
 
 const acciones = {
   async elegirPerfil(id) {
+    if (estado.perfiles.find((perfil) => perfil.id === id)?.activo === false) return;
     await intenta(async () => {
       await db.guardar({ meta: [{ clave: 'perfilActivo', valor: id }] });
       await recarga();
@@ -92,6 +97,7 @@ const acciones = {
   // Guarda foto y acta juntas: o entran las dos o ninguna. Devuelve si se guardo.
   // Si corrige un acta devuelta, es una version nueva; la anterior no se toca.
   enviarActa({ mesa, cifras, validacion, motivo, foto }) {
+    if (!puedeCapturar(estado.perfil, mesa)) return false;
     return intenta(async () => {
       // Una foto con id ya esta guardada: es la del acta devuelta, sin repetir.
       const fotoId = foto.id ?? crypto.randomUUID();
@@ -177,6 +183,79 @@ Object.assign(acciones, {
     const pdf = pdfDelPanel({ consolidado, kpi, perfiles: estado.perfiles, ambito, hora: formateaHora, generadoEn });
     descarga(pdf.bytes(), CONFIG.pdf.textos.archivoPanel, 'application/pdf');
     avisa(CONFIG.pdf.textos.generando);
+  },
+});
+
+// ---- Gestion de colegios, mesas y equipo (solo administrador) ----------------
+
+const G = CONFIG.gestion.textos;
+
+// Aplica una operacion de gestion sobre un borrador y, si cambia algo, lo
+// guarda junto con sus entradas de auditoria en una sola transaccion.
+// Devuelve el codigo del error de gestion, o null si todo fue bien.
+async function gestiona(opera, { destino = null, aviso }) {
+  if (estado.perfil?.rol !== 'administrador') return 'no-existe';
+  const borrador = gestion.abreBorrador(estado);
+  try {
+    opera(borrador);
+  } catch (error) {
+    if (!(error instanceof gestion.ErrorGestion)) throw error;
+    return error.codigo;
+  }
+  const hayCambios = borrador.registros.length > 0;
+  if (hayCambios) {
+    const guardado = await intenta(async () => {
+      const entradas = [];
+      for (const registro of borrador.registros) {
+        entradas.push(
+          await nuevaEntrada(entradas.at(-1) ?? estado.auditoria.at(-1) ?? null, {
+            hora: ahora(),
+            perfil: estado.perfil,
+            accion: registro.accion,
+            mesaId: registro.mesaId,
+            detalle: CONFIG.gestion.detalle(registro),
+            objeto: registro.objeto,
+            cambio: registro.cambio,
+          }),
+        );
+      }
+      await db.guardar({ colegios: borrador.colegios, mesas: borrador.mesas, perfiles: borrador.perfiles, auditoria: entradas }, borrador.borrados);
+      await recarga();
+    });
+    if (!guardado) return null;
+  }
+  // El aviso puede depender de lo que la operacion haya creado.
+  const texto = hayCambios ? (typeof aviso === 'function' ? aviso() : aviso) : G.sinCambios;
+  if (destino) ir(destino, texto);
+  else {
+    pinta({ foco: true });
+    avisa(texto);
+  }
+  return null;
+}
+
+Object.assign(acciones, {
+  guardaColegio: (datos) => gestiona((b) => gestion.guardaColegio(b, datos), { destino: '#/organizacion', aviso: G.guardado }),
+  guardaMesa: (datos) => gestiona((b) => gestion.guardaMesa(b, datos), { destino: '#/organizacion', aviso: G.guardado }),
+
+  creaPerfil(rol) {
+    const etiquetaDelRol = CONFIG.roles[rol].singular;
+    let etiqueta;
+    return gestiona(
+      (b) => {
+        const id = gestion.creaPerfil(b, rol, etiquetaDelRol);
+        etiqueta = b.perfiles.find((perfil) => perfil.id === id).etiqueta;
+      },
+      { aviso: () => G.perfilCreado(etiqueta) },
+    );
+  },
+
+  cambiaActivo: (tipo, id, activo) => gestiona((b) => gestion.cambiaActivo(b, tipo, id, activo), { aviso: activo ? G.reactivado : G.desactivado }),
+
+  async borra(tipo, id, nombre) {
+    const aceptado = await confirmar({ titulo: G.borrarTitulo(nombre), texto: G.borrarTexto, aceptar: G.borrarAceptar });
+    if (!aceptado) return null;
+    return gestiona((b) => gestion.borra(b, tipo, id), { destino: '#/organizacion', aviso: G.borrado });
   },
 });
 

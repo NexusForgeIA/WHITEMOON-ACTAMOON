@@ -4,7 +4,7 @@ import { CONFIG } from '../config.js';
 import { consolida, filasDeSuma } from '../consolidado.js';
 import { mesasVisibles } from '../permisos.js';
 import { h, icono } from '../ui.js';
-import { chipsDeMesa, describeAmbito } from './comun.js';
+import { chipCerrada, chipsDeMesa, describeAmbito } from './comun.js';
 
 const T = CONFIG.panel.textos;
 
@@ -81,7 +81,7 @@ function desglose(grupo) {
               'tr',
               { 'data-mesa': mesa.id },
               h('th', { scope: 'row' }, h('a', { href: `#/mesa/${mesa.id}` }, mesa.nombre)),
-              h('td', null, chipsDeMesa(acta)),
+              h('td', null, h('span', { class: 'chips' }, chipsDeMesa(acta), chipCerrada(mesa))),
               acta ? celdas(acta.cifras).map((valor) => h('td', { class: 'num' }, String(valor))) : cabeceras.map(() => h('td', { class: 'num' }, '-')),
             ),
           ),

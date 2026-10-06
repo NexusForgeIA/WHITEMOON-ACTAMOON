@@ -3,7 +3,7 @@ import { CONFIG } from '../config.js';
 import { mesasVisibles, puedeCapturar, puedeValidar } from '../permisos.js';
 import { h, icono } from '../ui.js';
 import { detalleActa } from './acta.js';
-import { apoderadoDe, chipsDeMesa, interventorDe, nombreColegio, vistaMensaje } from './comun.js';
+import { apoderadoDe, chipCerrada, chipsDeMesa, interventorDe, nombreColegio, vistaMensaje } from './comun.js';
 import { listaReclamaciones } from './reclamacion.js';
 import { formularioValidacion, resultadoValidacion } from './validacion.js';
 
@@ -40,7 +40,7 @@ export function vistaMesas({ estado }) {
                     'a',
                     { class: 'fila', href: `#/mesa/${mesa.id}` },
                     h('span', { class: 'fila__titulo' }, mesa.nombre),
-                    chipsDeMesa(actaDe(estado.actas, mesa.id)),
+                    h('span', { class: 'chips' }, chipsDeMesa(actaDe(estado.actas, mesa.id)), chipCerrada(mesa)),
                     icono('adelante'),
                   ),
                 ),
@@ -71,7 +71,8 @@ export function vistaMesa({ estado, params: [mesaId], acciones }) {
       { class: 'vista' },
       h('a', { class: 'volver', href: '#/mesas' }, icono('atras'), 'Mesas'),
       h('h1', { tabindex: '-1' }, mesa.nombre),
-      h('p', null, chipsDeMesa(acta)),
+      h('p', { class: 'chips' }, chipsDeMesa(acta), chipCerrada(mesa)),
+      mesa.activo === false && h('p', { class: 'nota nota--neutra', id: 'mesa-cerrada' }, icono('no'), h('span', null, CONFIG.gestion.textos.cerradaNota)),
       acta && resultadoValidacion(acta, estado),
       admiteCaptura(acta) &&
         puedeCapturar(estado.perfil, mesa) &&

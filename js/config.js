@@ -147,6 +147,91 @@ export const CONFIG = {
     },
   },
 
+  // Gestion de colegios, mesas y equipo (solo administrador). Las reglas
+  // estan en gestion.js.
+  gestion: {
+    campos: { nombre: 'Nombre', colegio: 'Colegio', apoderado: 'Apoderado', interventor: 'Interventor', estado: 'Estado', mesa: 'Mesa', rol: 'Rol' },
+    // Texto de la entrada de auditoria: que objeto y que cambio, con el valor
+    // anterior y el nuevo.
+    detalle: ({ objeto, cambio }) => {
+      const campos = { nombre: 'Nombre', colegio: 'Colegio', apoderado: 'Apoderado', interventor: 'Interventor', estado: 'Estado', mesa: 'Mesa', rol: 'Rol' };
+      const valor = (v) => (v === null ? 'ninguno' : `«${v}»`);
+      const frases = cambio.map((c) => `${campos[c.campo] ?? c.campo}: ${c.antes === null ? valor(c.despues) : `de ${valor(c.antes)} a ${valor(c.despues)}`}.`);
+      return `${objeto.nombre}. ${frases.join(' ')}`;
+    },
+    errores: {
+      'nombre-vacio': 'Escribe un nombre.',
+      'nombre-largo': 'El nombre no puede pasar de 40 caracteres.',
+      'nombre-repetido': 'Ya hay otro con ese nombre.',
+      'mesa-con-registros': 'Esta mesa tiene actas o reclamaciones: no se puede borrar ni cambiar de colegio. Se puede desactivar.',
+      'colegio-con-mesas': 'Este colegio tiene mesas: no se puede borrar. Se puede desactivar.',
+      'colegio-desactivado': 'El colegio está desactivado. Reactívalo antes.',
+      'perfil-desactivado': 'Ese perfil está desactivado y no se puede asignar.',
+      administrador: 'El administrador no se puede desactivar.',
+      'rol-equivocado': 'Ese perfil no tiene el rol que hace falta.',
+      'no-existe': 'Ya no existe.',
+      'perfil-no-se-borra': 'Los perfiles no se borran: lo que hicieron tiene que seguir a su nombre.',
+    },
+    textos: {
+      titulo: 'Equipo',
+      entradilla: 'colegios, mesas y quién cubre cada una',
+      avisoFicticios: 'Usa nombres ficticios. No escribas colegios, lugares ni personas reales.',
+      colegiosYMesas: 'Colegios y mesas',
+      nuevoColegio: 'Nuevo colegio',
+      nuevaMesa: 'Nueva mesa',
+      editarColegio: (nombre) => `Editar ${nombre}`,
+      editarMesa: (nombre) => `Editar ${nombre}`,
+      mesasDe: (nombre) => `Mesas de ${nombre}`,
+      mesa: 'Mesa',
+      estado: 'Estado',
+      colegio: 'Colegio',
+      apoderado: 'Apoderado',
+      interventor: 'Interventor',
+      interventorAyuda: 'Un interventor lleva una sola mesa: si ya tenía otra, la deja.',
+      sinAsignar: 'Sin asignar',
+      nombre: 'Nombre',
+      nombreAyuda: (maximo) => `Hasta ${maximo} caracteres. Ficticio.`,
+      colegioFijo: 'Esta mesa tiene actas o reclamaciones y no puede cambiar de colegio.',
+      guardar: 'Guardar',
+      guardado: 'Cambios guardados.',
+      sinCambios: 'No había nada que cambiar.',
+      perfiles: 'Perfiles',
+      perfilesNota: 'Los perfiles se numeran solos y no llevan nombre de persona. No se borran: lo que hicieron sigue a su nombre.',
+      nuevoInterventor: 'Nuevo interventor',
+      nuevoApoderado: 'Nuevo apoderado',
+      perfilCreado: (etiqueta) => `${etiqueta} creado. Asígnalo desde un colegio o una mesa.`,
+      enUso: 'En uso',
+      fueraDeUso: 'Desactivado',
+      cerrada: 'Cerrada a cambios',
+      cerradaNota: 'Mesa cerrada a cambios: no admite capturas, reenvíos ni reclamaciones nuevas. Lo ya registrado sigue contando.',
+      estadoTitulo: 'Desactivar o borrar',
+      desactivar: 'Desactivar',
+      reactivar: 'Reactivar',
+      desactivarNota: {
+        colegio: 'Desactivar un colegio cierra también sus mesas. Lo ya registrado sigue contando en totales y KPI.',
+        mesa: 'Una mesa desactivada queda cerrada a cambios: no admite capturas, reenvíos ni reclamaciones nuevas. Un acta pendiente todavía se puede validar o devolver, y lo ya registrado sigue contando.',
+      },
+      reactivarNota: {
+        colegio: 'Reactivar el colegio no reabre sus mesas: cada una se reactiva aparte.',
+        mesa: 'Al reactivarla, la mesa vuelve a admitir capturas y reclamaciones.',
+      },
+      desactivado: 'Desactivado. Lo ya registrado sigue contando.',
+      reactivado: 'Reactivado.',
+      borrar: 'Borrar',
+      borrarTitulo: (nombre) => `¿Borrar ${nombre}?`,
+      borrarTexto: 'No tiene nada registrado, así que se puede borrar. El borrado queda apuntado en la auditoría. No se puede deshacer.',
+      borrarAceptar: 'Sí, borrar',
+      borrado: 'Borrado.',
+      mesaNoSeBorra: 'Tiene actas o reclamaciones: no se puede borrar, solo desactivar.',
+      colegioNoSeBorra: 'Tiene mesas: no se puede borrar, solo desactivar.',
+      noExiste: 'No existe',
+      noExisteTexto: 'Ese colegio o esa mesa ya no existe.',
+      sinColegios: 'No hay colegios en uso',
+      sinColegiosTexto: 'Una mesa necesita un colegio en uso.',
+      perfilDesactivado: 'Perfil desactivado',
+    },
+  },
+
   // KPI de actividad. Salen de lo ya registrado; las formulas estan en kpi.js.
   kpi: {
     textos: {
@@ -290,6 +375,20 @@ export const CONFIG = {
       'acta-validada': 'Acta validada',
       'acta-devuelta': 'Acta devuelta',
       'reclamacion-registrada': 'Reclamación registrada',
+      'colegio-creado': 'Colegio creado',
+      'colegio-editado': 'Colegio editado',
+      'colegio-desactivado': 'Colegio desactivado',
+      'colegio-reactivado': 'Colegio reactivado',
+      'colegio-borrado': 'Colegio borrado',
+      'mesa-creada': 'Mesa creada',
+      'mesa-editada': 'Mesa editada',
+      'mesa-desactivada': 'Mesa desactivada',
+      'mesa-reactivada': 'Mesa reactivada',
+      'mesa-borrada': 'Mesa borrada',
+      'perfil-creado': 'Perfil creado',
+      'perfil-desactivado': 'Perfil desactivado',
+      'perfil-reactivado': 'Perfil reactivado',
+      'asignacion-cambiada': 'Asignación cambiada',
     },
     detalle: {
       datosCargados: (colegios, mesas, perfiles) => `${colegios} colegios, ${mesas} mesas y ${perfiles} perfiles.`,

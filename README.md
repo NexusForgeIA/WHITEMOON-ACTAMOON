@@ -19,6 +19,9 @@ Todos los derechos reservados. Ver [Derechos](#derechos).
   PDF por mesa y del panel, generados en el navegador.
 - Actividad: cobertura, estados y su evolución, calidad, tiempos orientativos,
   reclamaciones, acciones y pendientes. Cada cifra lleva su base.
+- Gestión de colegios, mesas y equipo por el administrador: altas, ediciones,
+  asignaciones y desactivaciones, todas apuntadas en la auditoría con el valor
+  anterior y el nuevo. Lo que tiene actas o reclamaciones no se borra.
 - Uso sin conexión.
 - Portada de presentación.
 
@@ -105,6 +108,7 @@ js/foto.js               huella del original y copia reducida a 1600 px
 js/actas.js              registros de acta y doble confirmación (módulo puro)
 js/auditoria.js          registro encadenado por huellas: crear y verificar (módulo puro)
 js/consolidado.js        panel: totales de actas validadas, provisional y desglose (módulo puro)
+js/gestion.js            altas, ediciones y desactivaciones, con sus reglas (módulo puro)
 js/kpi.js                KPI de actividad: definiciones y fórmulas (módulo puro)
 js/pdf.js                generador de PDF propio, sin librerías (módulo puro)
 js/documentos.js         PDF de una mesa y PDF del panel (módulo puro)

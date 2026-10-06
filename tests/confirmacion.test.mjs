@@ -212,7 +212,8 @@ test('una cadena reescrita entera vuelve a verificarse: el mecanismo no es una g
 });
 
 test('cada accion registrada tiene su nombre en la configuracion', () => {
-  assert.deepEqual(Object.keys(CONFIG.auditoria.acciones), ['datos-cargados', 'acta-enviada', 'acta-validada', 'acta-devuelta', 'reclamacion-registrada']);
+  // Las de gestion (fase 7) van detras y se comprueban en gestion.test.mjs.
+  assert.deepEqual(Object.keys(CONFIG.auditoria.acciones).slice(0, 5), ['datos-cargados', 'acta-enviada', 'acta-validada', 'acta-devuelta', 'reclamacion-registrada']);
   assert.match(CONFIG.auditoria.textos.aviso, /solo lo impide un servidor/);
   assert.match(CONFIG.auditoria.textos.avisoTitulo, /no es una garantía/);
 });
