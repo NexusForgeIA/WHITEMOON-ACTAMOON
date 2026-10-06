@@ -6,6 +6,27 @@ apoderados.
 
 **Es una demo con datos ficticios. No es un sistema oficial ni publica resultados.**
 
+Todos los derechos reservados. Ver [Derechos](#derechos).
+
+## Qué hay hoy
+
+- Perfiles simulados y datos de ejemplo (Municipio de Ejemplo, colegios y mesas
+  numerados, candidaturas A, B y C).
+- Captura del acta: foto, huella SHA-256 del archivo, hora del dispositivo,
+  cifras y validaciones aritméticas.
+- Doble confirmación por otro perfil, reclamaciones y registro de auditoría.
+- Portada de presentación.
+
+Pendiente: el consolidado por mesa, el PDF por mesa y el modo sin conexión.
+
+## Fotos y datos
+
+- La demo **no usa fotos de actas reales**. El repositorio no contiene ninguna
+  foto: sus únicas imágenes son el logo, los iconos y una ilustración dibujada.
+- La pantalla de captura avisa de que no se fotografíen actas reales. Las fotos
+  que se hagan al probarla se quedan en el navegador de quien las hace.
+- No hay nombres de personas, partidos ni municipios reales.
+
 ## Qué es y qué no
 
 - HTML, CSS y JavaScript sin frameworks, sin dependencias y sin paso de build.
@@ -20,15 +41,22 @@ apoderados.
   En local eso enseña el mecanismo, no garantiza que el registro sea
   inalterable: quien tenga acceso al navegador puede reescribirlo entero.
 
+## Contacto
+
+El contacto que enseñan la portada y el pie de la app sale de la constante
+`CONTACTO` de `js/config.js`, y solo de ahí: un test falla si aparece escrito
+en cualquier otro archivo. Con la constante vacía, el contacto no se muestra.
+
 ## Arrancar en local
 
 Los módulos ES necesitan un servidor; cualquiera sirve:
 
 ```
-python -m http.server 8000
+npx serve                    # http://localhost:3000/
+python -m http.server 8000   # http://localhost:8000/
 ```
 
-y abrir `http://localhost:8000/`.
+La app está en la raíz y la portada en `portada.html`.
 
 ## Comprobaciones
 
@@ -59,3 +87,14 @@ js/vistas/               una por pantalla
 scripts/                 verificación de contraste
 tests/                   node --test
 ```
+
+## Derechos
+
+Copyright (c) 2026 ACTAMOON. Todos los derechos reservados.
+
+El repositorio es público para que la demo pueda verse; eso no concede ninguna
+licencia de uso, copia, modificación ni distribución. El texto completo está en
+[LICENSE](LICENSE).
+
+Las tipografías IBM Plex de `assets/fonts/` son de sus autores y se distribuyen
+bajo la SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
