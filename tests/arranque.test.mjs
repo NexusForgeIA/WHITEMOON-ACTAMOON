@@ -9,7 +9,8 @@ import { arranque, navegacion, perfilVigente, puedeVer, resuelve, rutaInicial } 
 
 const { colegios, mesas, perfiles } = datosEjemplo();
 const perfil = (id) => perfiles.find((p) => p.id === id);
-const texto = (ruta) => readFileSync(new URL(`../${ruta}`, import.meta.url), 'utf8');
+// Los saltos de linea se igualan: git puede dejar CRLF en Windows.
+const texto = (ruta) => readFileSync(new URL(`../${ruta}`, import.meta.url), 'utf8').replaceAll('\r\n', '\n');
 
 // ---- Los casos de arranque ---------------------------------------------------
 
