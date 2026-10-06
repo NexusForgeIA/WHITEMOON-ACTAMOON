@@ -1,8 +1,7 @@
 // Pinta portada.html a partir de PORTADA (config.js). Aqui no hay textos.
 
-import { CONTACTO, PORTADA } from './config.js';
-import { enlaceContacto } from './contacto.js';
-import { h, icono } from './ui.js';
+import { PORTADA } from './config.js';
+import { enlaceDeContacto, h, icono } from './ui.js';
 
 const APP = './';
 
@@ -11,7 +10,7 @@ function banda(clase, id, ...hijos) {
 }
 
 function hero({ titulo, frase, nota, ctaDemo, ctaContacto, ilustracionAlt }) {
-  const contacto = enlaceContacto(CONTACTO);
+  const contacto = enlaceDeContacto();
   return banda(
     'hero',
     'hero-titulo',
@@ -20,12 +19,8 @@ function hero({ titulo, frase, nota, ctaDemo, ctaContacto, ilustracionAlt }) {
       { class: 'hero__texto' },
       h('h1', { id: 'hero-titulo' }, titulo),
       h('p', { class: 'hero__frase' }, frase),
-      h(
-        'div',
-        { class: 'hero__acciones' },
-        h('a', { class: 'boton', href: APP }, ctaDemo),
-        contacto && h('a', { class: 'boton boton--secundario', id: 'solicitar-demo', href: contacto }, ctaContacto),
-      ),
+      h('div', { class: 'hero__acciones' }, h('a', { class: 'boton', href: APP }, ctaDemo)),
+      contacto && h('p', { class: 'hero__contacto' }, h('span', null, ctaContacto), contacto),
       h('p', { class: 'hero__nota' }, nota),
     ),
     h('img', { class: 'hero__imagen', src: 'assets/img/acta.svg', width: '480', height: '400', alt: ilustracionAlt }),

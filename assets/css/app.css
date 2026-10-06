@@ -611,6 +611,22 @@ main:focus {
   min-height: 2.75rem;
 }
 
+.pie__contacto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--s-2);
+}
+
+/* Enlace de contacto: 44px de alto para el dedo, y que un correo largo parta. */
+.contacto {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
 /* ---- Dialogo de confirmacion ---------------------------------------------- */
 
 .dialogo {

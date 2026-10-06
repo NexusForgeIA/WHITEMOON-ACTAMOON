@@ -2,7 +2,7 @@ import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
 import * as db from './db.js';
 import { navegacion, puedeVer, resuelve, rutaInicial } from './permisos.js';
-import { avisa, confirmar, h, icono, limpiaAvisos } from './ui.js';
+import { avisa, confirmar, enlaceDeContacto, h, icono, limpiaAvisos } from './ui.js';
 import { vistaAyuda } from './vistas/ayuda.js';
 import { vistaMensaje } from './vistas/comun.js';
 import { vistaInicio } from './vistas/inicio.js';
@@ -149,8 +149,17 @@ function preparaDialogo() {
   document.getElementById('dialogo-si').addEventListener('click', () => dialogo.close('si'));
 }
 
+function pintaContacto() {
+  const contacto = enlaceDeContacto();
+  if (!contacto) return;
+  const parrafo = document.getElementById('pie-contacto');
+  parrafo.replaceChildren(h('span', null, CONFIG.textos.contacto), contacto);
+  parrafo.hidden = false;
+}
+
 async function arranca() {
   preparaDialogo();
+  pintaContacto();
   document.getElementById('ambito').textContent = `${CONFIG.eleccion.tipo} · ${CONFIG.eleccion.ambito}`;
   try {
     await recarga();

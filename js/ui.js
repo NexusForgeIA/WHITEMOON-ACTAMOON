@@ -1,6 +1,9 @@
 // Piezas de interfaz compartidas. El DOM se construye con nodos, nunca con
 // innerHTML, para que ningun texto introducido pueda colarse como marcado.
 
+import { CONTACTO, CONTACTO_ASUNTO } from './config.js';
+import { enlaceContacto } from './contacto.js';
+
 const SVG = 'http://www.w3.org/2000/svg';
 const CIRCULO = 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z';
 
@@ -40,6 +43,13 @@ export function icono(nombre) {
   trazo.setAttribute('d', TRAZOS[nombre]);
   svg.append(trazo);
   return svg;
+}
+
+// Enlace de contacto, o null si CONTACTO esta vacio. El texto visible es el
+// propio contacto, para poder copiarlo sin abrir el cliente de correo.
+export function enlaceDeContacto() {
+  const href = enlaceContacto(CONTACTO, CONTACTO_ASUNTO);
+  return href && h('a', { class: 'contacto', href }, CONTACTO.trim());
 }
 
 let temporizador;

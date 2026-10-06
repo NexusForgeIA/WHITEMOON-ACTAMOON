@@ -87,8 +87,17 @@ html:has(body.portada) {
   text-decoration: none;
 }
 
+.hero__contacto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--s-2);
+  margin-top: var(--s-3);
+  color: var(--ink-2);
+}
+
 .hero__nota {
-  margin-top: var(--s-4);
+  margin-top: var(--s-2);
   color: var(--muted);
   font-size: var(--text-sm);
 }

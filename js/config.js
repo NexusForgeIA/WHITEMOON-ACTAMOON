@@ -24,6 +24,7 @@ export const CONFIG = {
     sinEspacio:
       'No queda espacio en este dispositivo para guardar más datos. Libera espacio o reinicia la demo.',
     errorGuardado: 'No se han podido guardar los datos en este navegador.',
+    contacto: 'Contacto:',
   },
 
   // Lo que la demo NO demuestra. Pertenece al producto con backend.
@@ -46,10 +47,13 @@ export const CONFIG = {
   ],
 };
 
-// Contacto comercial de la portada. Vacio por defecto: sin valor, el boton
-// "Solicitar demo" no se muestra. Admite un correo (se abre con mailto) o un
-// telefono con prefijo internacional (se abre en WhatsApp).
-export const CONTACTO = '';
+// Contacto comercial. Es el unico sitio donde se escribe: la portada y el pie
+// de la app lo leen de aqui. Vacio, el contacto no se muestra. Admite un correo
+// (se abre con mailto) o un telefono con prefijo internacional (WhatsApp).
+export const CONTACTO = 'comercial@whitemoon.es';
+
+// Asunto con el que se abre el correo.
+export const CONTACTO_ASUNTO = 'ACTAMOON: consulta';
 
 // Textos de portada.html. La portada no lleva ningun texto fuera de aqui.
 export const PORTADA = {
@@ -61,7 +65,7 @@ export const PORTADA = {
       'Foto del acta, cifras comprobadas y una segunda persona que las confirma: un recuento paralelo interno, mesa a mesa.',
     nota: 'Lo que vas a probar es una demo de presentación con datos ficticios.',
     ctaDemo: 'Probar la demo',
-    ctaContacto: 'Solicitar demo',
+    ctaContacto: 'Solicitar demo:',
     ilustracionAlt: 'Un acta en papel con sus cifras y, al lado, un móvil que la ha fotografiado.',
   },
 

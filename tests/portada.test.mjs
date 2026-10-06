@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import { PORTADA } from '../js/config.js';
+import { CONTACTO, CONTACTO_ASUNTO, PORTADA } from '../js/config.js';
 import { enlaceContacto } from '../js/contacto.js';
 
-const lee = (ruta) => readFileSync(new URL(`../${ruta}`, import.meta.url), 'utf8');
+const RAIZ = new URL('../', import.meta.url);
+const lee = (ruta) => readFileSync(new URL(ruta, RAIZ), 'utf8');
 
 // Lo que la portada no puede decir, ni siquiera para negarlo.
 const PROHIBIDO = [
@@ -32,6 +33,8 @@ test('la portada y config.js no contienen nada de la lista prohibida', () => {
   for (const ruta of ['portada.html', 'js/config.js', 'js/portada.js']) {
     lee(ruta)
       .split('\n')
+      // Unica excepcion: el valor de CONTACTO, que es el correo comercial.
+      .map((linea) => (linea.startsWith('export const CONTACTO = ') ? '' : linea))
       .forEach((linea, i) => {
         for (const patron of PROHIBIDO) {
           if (patron.test(linea)) hallazgos.push(`${ruta}:${i + 1} ${patron} -> ${linea.trim()}`);
@@ -65,7 +68,7 @@ test('la lista prohibida detecta lo que tiene que detectar', () => {
 test('la portada tiene las seis partes del encargo', () => {
   assert.equal(PORTADA.hero.titulo, 'Control de actas para interventores y apoderados');
   assert.equal(PORTADA.hero.ctaDemo, 'Probar la demo');
-  assert.equal(PORTADA.hero.ctaContacto, 'Solicitar demo');
+  assert.equal(PORTADA.hero.ctaContacto, 'Solicitar demo:');
   assert.equal(PORTADA.pasos.items.length, 3);
   assert.equal(PORTADA.ofrece.items.length, 7);
   assert.equal(PORTADA.noHace.items.length, 4);
@@ -86,9 +89,37 @@ test('sin contacto no hay enlace', () => {
   assert.equal(enlaceContacto(undefined), null);
 });
 
+test('el contacto configurado es un correo y se abre con el asunto prellenado', () => {
+  assert.match(CONTACTO, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+  assert.equal(CONTACTO_ASUNTO, 'ACTAMOON: consulta');
+  assert.equal(enlaceContacto(CONTACTO, CONTACTO_ASUNTO), `mailto:${CONTACTO}?subject=ACTAMOON%3A%20consulta`);
+});
+
+test('el contacto solo esta escrito en la constante CONTACTO', () => {
+  const sitios = [];
+  const visita = (dir) => {
+    for (const entrada of readdirSync(new URL(dir, RAIZ), { withFileTypes: true })) {
+      if (['.git', 'node_modules'].includes(entrada.name)) continue;
+      const ruta = dir + entrada.name;
+      if (entrada.isDirectory()) visita(ruta + '/');
+      else if (/\.(html|js|mjs|css|svg|md|py|json|webmanifest)$/.test(entrada.name)) {
+        lee(ruta)
+          .split('\n')
+          .forEach((linea, i) => {
+            if (linea.toLowerCase().includes(CONTACTO.toLowerCase())) sitios.push(`${ruta}:${i + 1}`);
+          });
+      }
+    }
+  };
+  visita('');
+  assert.equal(sitios.length, 1, sitios.join(', '));
+  assert.match(sitios[0], /^js\/config\.js:\d+$/);
+});
+
 test('un correo abre mailto y un telefono abre WhatsApp', () => {
   assert.equal(enlaceContacto('demo@example.org'), 'mailto:demo@example.org');
   assert.equal(enlaceContacto(' demo@example.org '), 'mailto:demo@example.org');
+  assert.equal(enlaceContacto('demo@example.org', 'Hola & adiós'), 'mailto:demo@example.org?subject=Hola%20%26%20adi%C3%B3s');
   assert.equal(enlaceContacto('+00 000 000 000'), 'https://wa.me/00000000000');
   assert.equal(enlaceContacto('00000000000'), 'https://wa.me/00000000000');
 });
