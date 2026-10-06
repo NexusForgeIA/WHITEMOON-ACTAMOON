@@ -147,6 +147,27 @@ export const CONFIG = {
     },
   },
 
+  // Pantalla de entrada: bienvenida (sin datos) y selector de perfil.
+  entrada: {
+    tituloBienvenida: 'Entrada',
+    frase: 'Control de actas por mesa, con rastro.',
+    probar: 'Probar la demo',
+    portada: 'Ver la portada',
+    queEs: 'Qué es esta demo',
+    tituloSelector: 'Elige un perfil',
+    roles: {
+      interventor: { nombre: 'Interventor', linea: 'Captura y corrige actas de su mesa.' },
+      apoderado: { nombre: 'Apoderado', linea: 'Valida o devuelve las de su colegio.' },
+      administrador: { nombre: 'Administrador', linea: 'Panel, actividad y auditoría.' },
+    },
+    elegir: (n) => (n === 1 ? '1 perfil' : `${n} perfiles`),
+    perfilActivo: 'Perfil activo',
+    cambiar: 'Cambiar de perfil',
+    datos: 'Datos de la demo',
+    resumen: (colegios, mesas, perfiles) => `Datos cargados: ${colegios} colegios, ${mesas} mesas y ${perfiles} perfiles. Todos ficticios.`,
+    reiniciar: 'Reiniciar demo',
+  },
+
   // Gestion de colegios, mesas y equipo (solo administrador). Las reglas
   // estan en gestion.js.
   gestion: {

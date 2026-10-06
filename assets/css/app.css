@@ -193,9 +193,25 @@ h1:focus {
   white-space: nowrap;
 }
 
-.cabecera__perfil span:not(.oculto) {
+.cabecera__perfil-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.cabecera__perfil-texto span:not(.oculto) {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.cabecera__perfil-nombre {
+  font-weight: 600;
+}
+
+.cabecera__perfil-accion {
+  color: var(--accent);
+  font-size: var(--text-xs);
 }
 
 .cabecera__perfil:hover {
@@ -227,6 +243,177 @@ h1:focus {
   border-bottom: 1px solid var(--accent);
   background: var(--accent-tint);
   color: var(--ink);
+}
+
+/* Hasta saber que pantalla toca, la cabecera, la barra y el pie no se ven:
+   asi la bienvenida no parpadea con el marco de la app. */
+.arrancando .cabecera,
+.arrancando .nav,
+.arrancando .pie {
+  visibility: hidden;
+}
+
+/* ---- Bienvenida: a pantalla completa, sin cabecera ni navegacion ----------- */
+
+.es-bienvenida {
+  padding-bottom: 0;
+}
+
+.es-bienvenida .cabecera,
+.es-bienvenida .nav,
+.es-bienvenida .pie {
+  display: none;
+}
+
+.es-bienvenida main {
+  display: flex;
+  padding: var(--s-6) max(var(--s-4), env(safe-area-inset-right)) calc(var(--s-6) + env(safe-area-inset-bottom)) max(var(--s-4), env(safe-area-inset-left));
+}
+
+.bienvenida {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-6);
+  text-align: center;
+}
+
+.bienvenida__logo img {
+  display: block;
+  width: min(72vw, 19rem);
+  height: auto;
+}
+
+.bienvenida__frase {
+  max-width: 22rem;
+  color: var(--ink);
+  font-size: var(--text-xl);
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.boton--grande {
+  width: min(100%, 20rem);
+  min-height: 4rem;
+  font-size: var(--text-lg);
+}
+
+.bienvenida__enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 var(--s-6);
+  font-size: var(--text-sm);
+}
+
+.bienvenida__enlaces a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+/* Entrada sutil. El contenido es visible sin ella; solo si no se ha pedido
+   menos movimiento. */
+@media (prefers-reduced-motion: no-preference) {
+  .bienvenida > * {
+    animation: entra 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .bienvenida > :nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .bienvenida > :nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  .bienvenida > :nth-child(4) {
+    animation-delay: 210ms;
+  }
+}
+
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+/* ---- Selector de perfil: una tarjeta por rol -------------------------------- */
+
+.roles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.rol__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.rol {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  min-height: 5rem;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 150ms ease-out;
+}
+
+.rol:hover {
+  background: var(--surface-2);
+}
+
+.rol[aria-expanded="true"],
+.rol[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  background: var(--accent-tint);
+}
+
+.rol > .icono {
+  width: 2rem;
+  height: 2rem;
+  color: var(--accent);
+}
+
+.rol__texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.rol__nombre {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.rol__linea {
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+.rol__cuantos {
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.rol__grupo .perfiles {
+  padding-left: var(--s-4);
 }
 
 /* ---- Navegacion: barra inferior en movil, lateral en escritorio ---------- */
@@ -1210,6 +1397,11 @@ a.boton--secundario:hover {
     padding-bottom: 0;
   }
 
+  /* La bienvenida no tiene lateral: el contenido ocupa todo el ancho. */
+  .es-bienvenida main {
+    grid-column: 1 / -1;
+  }
+
   .banner {
     grid-area: banner;
     font-size: var(--text-sm);
@@ -1307,5 +1499,6 @@ a.boton--secundario:hover {
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+    animation: none !important;
   }
 }

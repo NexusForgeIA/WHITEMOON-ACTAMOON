@@ -7,7 +7,7 @@ import * as db from './db.js';
 import * as gestion from './gestion.js';
 import { calculaKpi } from './kpi.js';
 import { preparaOffline } from './offline.js';
-import { mesasVisibles, navegacion, puedeCapturar, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
+import { arranque, mesasVisibles, navegacion, perfilVigente, puedeCapturar, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
 import { avisa, confirmar, descarga, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
 import { vistaActa } from './vistas/acta.js';
 import { vistaActividad } from './vistas/actividad.js';
@@ -15,14 +15,14 @@ import { vistaAuditoria } from './vistas/auditoria.js';
 import { vistaGestionColegio, vistaGestionMesa } from './vistas/gestion.js';
 import { vistaAyuda } from './vistas/ayuda.js';
 import { formateaHora, vistaMensaje } from './vistas/comun.js';
-import { vistaInicio } from './vistas/inicio.js';
+import { vistaBienvenida, vistaSelector } from './vistas/inicio.js';
 import { vistaMesa, vistaMesas } from './vistas/mesas.js';
 import { vistaOrganizacion } from './vistas/organizacion.js';
 import { vistaPanel } from './vistas/panel.js';
 import { vistaReclamacion } from './vistas/reclamacion.js';
 
 const VISTAS = {
-  inicio: vistaInicio,
+  perfil: vistaSelector,
   mesas: vistaMesas,
   mesa: vistaMesa,
   acta: vistaActa,
@@ -75,6 +75,7 @@ const acciones = {
         D.datosCargados(datos.colegios.length, datos.mesas.length, datos.perfiles.length),
       );
       await recarga();
+      // Desde la bienvenida, el arranque ya ensena el selector.
       pinta({ foco: true });
       avisa('Datos de ejemplo cargados.');
     });
@@ -301,7 +302,7 @@ async function recarga() {
     actas,
     reclamaciones,
     auditoria,
-    perfil: perfiles.find((perfil) => perfil.id === activo?.valor) ?? null,
+    perfil: perfilVigente(perfiles, activo?.valor),
   });
 }
 
@@ -325,22 +326,43 @@ function vistaActual() {
     return { vista: vistaMensaje('Página no encontrada', 'Esta dirección no existe en la demo.', { href: '#/', texto: 'Ir al inicio' }) };
   }
   const { ruta, params } = destino;
-  if (!puedeVer(estado.perfil, ruta)) {
-    const vista = estado.perfil
-      ? vistaMensaje('Vista no disponible', `El perfil ${estado.perfil.etiqueta} no tiene acceso a esta vista.`, {
-          href: rutaInicial(estado.perfil),
-          texto: 'Volver a lo tuyo',
-        })
-      : vistaMensaje('Elige antes un perfil', 'Esta vista necesita un perfil activo.', { href: '#/', texto: 'Elegir perfil' });
-    return { vista };
+  const contexto = { estado, params, acciones };
+  if (ruta.id === 'inicio') {
+    // El arranque: bienvenida, selector o, con perfil, su pantalla de inicio.
+    const decision = arranque(estado.perfiles, estado.perfil);
+    if (decision.ir) return { redirige: decision.ir };
+    return { ruta, vista: decision.vista === 'bienvenida' ? vistaBienvenida(contexto) : vistaSelector(contexto) };
   }
-  return { ruta, vista: VISTAS[ruta.id]({ estado, params, acciones }) };
+  // Sin datos no hay perfiles que elegir: el selector lleva a la bienvenida.
+  if (ruta.id === 'perfil' && estado.perfiles.length === 0) return { redirige: '#/' };
+  if (!puedeVer(estado.perfil, ruta)) {
+    // Sin perfil, cualquier pantalla interna lleva al arranque.
+    if (!estado.perfil) return { redirige: '#/' };
+    return {
+      vista: vistaMensaje('Vista no disponible', `El perfil ${estado.perfil.etiqueta} no tiene acceso a esta vista.`, {
+        href: rutaInicial(estado.perfil),
+        texto: 'Volver a lo tuyo',
+      }),
+    };
+  }
+  return { ruta, vista: VISTAS[ruta.id](contexto) };
 }
 
 function pinta({ foco = false } = {}) {
   liberaUrls();
-  const { ruta, vista } = vistaActual();
+  const { ruta, vista, redirige } = vistaActual();
+  if (redirige) {
+    // replace: el arranque no queda en el historial y "atras" no rebota.
+    location.replace(redirige);
+    return;
+  }
   document.title = `${vista.titulo} · ${CONFIG.producto} (demo)`;
+  // La bienvenida va a pantalla completa y el banner lleva su propio aviso.
+  const bienvenida = vista.pantalla === 'bienvenida';
+  document.body.classList.remove('arrancando');
+  document.body.classList.toggle('es-bienvenida', bienvenida);
+  document.getElementById('banner-app').hidden = bienvenida;
+  document.getElementById('banner-entrada').hidden = !bienvenida;
   document.getElementById('contenido').replaceChildren(vista.nodo);
   pintaCabecera();
   pintaNavegacion(ruta);
@@ -351,11 +373,19 @@ function pinta({ foco = false } = {}) {
 }
 
 function pintaCabecera() {
+  // Sin perfil no hay nada que cambiar: el boton no se muestra.
   const enlace = document.getElementById('perfil-activo');
+  enlace.hidden = !estado.perfil;
+  if (!estado.perfil) return;
   enlace.replaceChildren(
     icono('perfil'),
-    h('span', null, estado.perfil ? estado.perfil.etiqueta : 'Sin perfil'),
-    h('span', { class: 'oculto' }, '. Cambiar de perfil'),
+    h(
+      'span',
+      { class: 'cabecera__perfil-texto' },
+      h('span', { class: 'cabecera__perfil-nombre' }, estado.perfil.etiqueta),
+      h('span', { class: 'oculto' }, '. '),
+      h('span', { class: 'cabecera__perfil-accion' }, CONFIG.entrada.cambiar),
+    ),
   );
 }
 

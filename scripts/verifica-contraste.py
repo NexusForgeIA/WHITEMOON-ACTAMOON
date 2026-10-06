@@ -199,6 +199,21 @@ bloque('12 - Gestion de colegios, mesas y equipo', [
     ('line-strong', 'surface-2', AA_UI, 'borde del campo bloqueado'),
 ])
 
+bloque('13 - Pantalla de entrada', [
+    ('ink', 'bg', AA, 'frase de la bienvenida'),
+    ('surface', 'accent', AA, 'boton probar la demo'),
+    ('accent', 'bg', AA, 'enlaces a la portada y a la ayuda'),
+    ('ink', 'aviso', AA, 'aviso de la bienvenida en el banner'),
+    ('ink', 'surface', AA, 'nombre del rol en su tarjeta'),
+    ('ink-2', 'surface', AA, 'linea del rol y numero de perfiles'),
+    ('ink', 'accent-tint', AA, 'tarjeta de rol desplegada o activa'),
+    ('ink-2', 'accent-tint', AA, 'linea del rol en la tarjeta activa'),
+    ('accent', 'surface', AA, 'cambiar de perfil, en la cabecera'),
+    ('accent', 'surface', AA_UI, 'icono del rol'),
+    ('accent', 'accent-tint', AA_UI, 'icono y borde de la tarjeta activa'),
+    ('line-strong', 'surface', AA_UI, 'borde de la tarjeta de rol'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")
