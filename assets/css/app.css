@@ -541,6 +541,11 @@ a.boton--secundario:hover {
   color: var(--err);
 }
 
+.chip--ok {
+  background: var(--ok-tint);
+  color: var(--ok);
+}
+
 .chips {
   display: inline-flex;
   flex-wrap: wrap;
@@ -632,6 +637,9 @@ a.boton--secundario:hover {
 .grupo > .campos,
 .grupo > .campos-grupo,
 .grupo > .descuadre,
+.grupo > .devolucion,
+.grupo > .acciones,
+.grupo > .reclamaciones,
 .grupo > .tabla,
 .grupo > .evidencia {
   align-self: stretch;
@@ -698,7 +706,8 @@ a.boton--secundario:hover {
 }
 
 .campos-grupo,
-.descuadre {
+.descuadre,
+.devolucion {
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -706,7 +715,8 @@ a.boton--secundario:hover {
 }
 
 .campos-grupo legend,
-.descuadre legend {
+.descuadre legend,
+.devolucion legend {
   margin-bottom: var(--s-3);
   padding: 0;
   color: var(--ink);
@@ -761,7 +771,8 @@ a.boton--secundario:hover {
   font-size: var(--text-sm);
 }
 
-.descuadre:not([hidden]) {
+.descuadre:not([hidden]),
+.devolucion:not([hidden]) {
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
@@ -793,6 +804,65 @@ a.boton--secundario:hover {
   padding-left: var(--s-6);
   color: var(--err);
   font-weight: 600;
+}
+
+.foto__imagen--menor {
+  max-height: 14rem;
+}
+
+/* ---- Validacion, reclamaciones y auditoria -------------------------------- */
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.reclamaciones,
+.registro {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.reclamaciones li,
+.registro li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4);
+}
+
+.reclamaciones li + li,
+.registro li + li {
+  border-top: 1px solid var(--line);
+}
+
+.reclamaciones__meta,
+.registro__meta {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.reclamaciones__texto {
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.registro__accion {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.registro__detalle {
+  overflow-wrap: anywhere;
 }
 
 .tabla.tabla--cifras {

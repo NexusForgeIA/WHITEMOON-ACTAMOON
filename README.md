@@ -16,6 +16,9 @@ apoderados.
   lo que se ve en la interfaz; no son seguridad real.
 - No demuestra seguridad real, hora de servidor ni sincronización entre
   dispositivos. Eso pertenece al producto con backend.
+- El registro de auditoría encadena cada entrada con la huella de la anterior.
+  En local eso enseña el mecanismo, no garantiza que el registro sea
+  inalterable: quien tenga acceso al navegador puede reescribirlo entero.
 
 ## Arrancar en local
 
@@ -30,7 +33,7 @@ y abrir `http://localhost:8000/`.
 ## Comprobaciones
 
 ```
-node --test                           # aritmética del acta, hash, permisos, ausencia de red, CSP, portada
+node --test                           # acta, hash, doble confirmación, cadena de auditoría, permisos, ausencia de red, CSP, portada
 python scripts/verifica-contraste.py  # contraste AA de la paleta (lee assets/css/tokens.css)
 ```
 
@@ -49,7 +52,8 @@ js/permisos.js           qué ve y qué captura cada perfil (módulo puro)
 js/validaciones.js       aritmética del acta y condiciones de envío (módulo puro)
 js/hash.js               SHA-256 con Web Crypto
 js/foto.js               huella del original y copia reducida a 1600 px
-js/actas.js              registros de acta (módulo puro)
+js/actas.js              registros de acta y doble confirmación (módulo puro)
+js/auditoria.js          registro encadenado por huellas: crear y verificar (módulo puro)
 js/datos-ejemplo.js      Municipio de Ejemplo: colegios, mesas y perfiles
 js/vistas/               una por pantalla
 scripts/                 verificación de contraste

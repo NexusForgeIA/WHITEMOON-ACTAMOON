@@ -1,11 +1,12 @@
-import { actaDe } from '../actas.js';
+import { actaDe, admiteCaptura } from '../actas.js';
 import { CONFIG } from '../config.js';
 import { leer } from '../db.js';
-import { ErrorFoto, preparaFoto } from '../foto.js';
 import { puedeCapturar } from '../permisos.js';
-import { avisa, h, icono, urlTemporal } from '../ui.js';
+import { h, icono, urlTemporal } from '../ui.js';
 import { leeEntero, puedeEnviar, validaActa } from '../validaciones.js';
-import { formateaHora, nombreColegio, tamano, vistaMensaje } from './comun.js';
+import { formateaHora, nombreColegio, vistaMensaje } from './comun.js';
+import { campoFoto, datosDeFoto } from './foto-campo.js';
+import { resultadoValidacion } from './validacion.js';
 
 const T = CONFIG.acta.textos;
 
@@ -13,8 +14,16 @@ const T = CONFIG.acta.textos;
 // de la pagina lo pierde.
 const borradores = new Map();
 
-function borradorDe(mesaId) {
-  if (!borradores.has(mesaId)) borradores.set(mesaId, { textos: {}, foto: null, confirma: false, motivo: '' });
+// Si la mesa tiene un acta devuelta, el borrador arranca con sus cifras.
+function borradorDe(mesaId, anterior) {
+  if (!borradores.has(mesaId)) {
+    const textos = {};
+    if (anterior) {
+      for (const { id } of CONFIG.acta.campos) textos[id] = String(anterior.cifras[id]);
+      for (const { id } of CONFIG.candidaturas) textos[`candidatura-${id}`] = String(anterior.cifras.candidaturas[id]);
+    }
+    borradores.set(mesaId, { textos, foto: null, confirma: false, motivo: '' });
+  }
   return borradores.get(mesaId);
 }
 
@@ -44,30 +53,6 @@ function explicaDescuadre(validacion) {
     });
 }
 
-function datosDeFoto(sha256, capturadaEn, bytes) {
-  const copiar = async () => {
-    try {
-      await navigator.clipboard.writeText(sha256);
-      avisa(T.huellaCopiada);
-    } catch {
-      avisa(T.huellaNoCopiada, 'error');
-    }
-  };
-  return h(
-    'dl',
-    { class: 'evidencia' },
-    h(
-      'div',
-      null,
-      h('dt', null, T.huella),
-      h('dd', null, h('code', { class: 'huella' }, sha256)),
-      h('dd', null, h('button', { type: 'button', class: 'boton boton--secundario boton--menor', onclick: copiar }, T.copiarHuella)),
-    ),
-    h('div', null, h('dt', null, T.hora), h('dd', null, formateaHora(capturadaEn)), h('dd', { class: 'evidencia__nota' }, T.horaNota)),
-    bytes != null && h('div', null, h('dt', null, T.tamano), h('dd', null, tamano(bytes))),
-  );
-}
-
 export function vistaActa({ estado, params: [mesaId], acciones }) {
   const mesa = estado.mesas.find((m) => m.id === mesaId);
   if (!mesa || !puedeCapturar(estado.perfil, mesa)) {
@@ -76,55 +61,37 @@ export function vistaActa({ estado, params: [mesaId], acciones }) {
       texto: 'Volver a las mesas',
     });
   }
-  if (actaDe(estado.actas, mesa.id)) {
-    return vistaMensaje('Esta mesa ya tiene acta', 'El acta está enviada y pendiente de validar.', {
+  const anterior = actaDe(estado.actas, mesa.id);
+  if (!admiteCaptura(anterior)) {
+    return vistaMensaje('Esta mesa ya tiene acta', T.yaEnviada[anterior.estado], {
       href: `#/mesa/${mesa.id}`,
       texto: `Ver ${mesa.nombre}`,
     });
   }
 
-  const borrador = borradorDe(mesa.id);
+  const estrenado = !borradores.has(mesa.id);
+  const borrador = borradorDe(mesa.id, anterior);
   let intentado = false;
 
   // ---- Foto ----------------------------------------------------------------
-  const zonaFoto = h('div', { class: 'foto', 'aria-live': 'polite' });
-  const errorFoto = h('p', { class: 'campo__error', role: 'alert', hidden: true });
-  const etiquetaFoto = h('label', { class: 'boton', for: 'foto-acta' });
-  const entradaFoto = h('input', {
-    type: 'file',
-    id: 'foto-acta',
-    class: 'oculto',
-    accept: 'image/*',
-    capture: 'environment',
-    onchange: async () => {
-      const [archivo] = entradaFoto.files;
-      entradaFoto.value = '';
-      if (!archivo) return;
-      errorFoto.hidden = true;
-      zonaFoto.replaceChildren(h('p', null, T.procesando));
-      try {
-        borrador.foto = await preparaFoto(archivo, CONFIG.acta.fotoLadoMaximo);
-      } catch (error) {
-        if (!(error instanceof ErrorFoto)) throw error;
-        errorFoto.textContent = T.fotoIlegible;
-        errorFoto.hidden = false;
-      }
-      pintaFoto();
-      actualiza();
-    },
-  });
+  const fotoCampo = campoFoto({ id: 'foto-acta', alt: T.fotoAlt(mesa.nombre), destino: borrador, alCambiar: () => actualiza() });
 
-  function pintaFoto() {
-    const { foto } = borrador;
-    etiquetaFoto.replaceChildren(icono('camara'), foto ? T.repetirFoto : T.hacerFoto);
-    zonaFoto.replaceChildren(
-      ...(foto
-        ? [
-            h('img', { class: 'foto__imagen', src: urlTemporal(foto.vista), width: foto.ancho, height: foto.alto, alt: T.fotoAlt(mesa.nombre) }),
-            datosDeFoto(foto.sha256, foto.capturadaEn, foto.bytes),
-          ]
-        : []),
-    );
+  // Al corregir un acta devuelta se parte de su foto; se puede repetir.
+  if (anterior && estrenado) {
+    leer('fotos', anterior.fotoId).then((registro) => {
+      if (!registro || borrador.foto) return;
+      borrador.foto = {
+        id: registro.id,
+        original: registro.original,
+        vista: registro.vista,
+        sha256: registro.sha256,
+        capturadaEn: registro.creadaEn,
+        tipo: registro.tipo,
+        bytes: registro.bytes,
+      };
+      fotoCampo.pinta();
+      actualiza();
+    });
   }
 
   // ---- Cifras --------------------------------------------------------------
@@ -187,7 +154,7 @@ export function vistaActa({ estado, params: [mesaId], acciones }) {
 
   // ---- Envio ---------------------------------------------------------------
   const pendientes = h('ul', { class: 'pendientes', role: 'alert', hidden: true });
-  const enviar = h('button', { type: 'button', class: 'boton', id: 'enviar-acta', onclick: envia }, T.enviar);
+  const enviar = h('button', { type: 'button', class: 'boton', id: 'enviar-acta', onclick: envia }, anterior ? T.reenviar : T.enviar);
 
   function estadoActual() {
     const cifras = cifrasDe(borrador.textos);
@@ -239,7 +206,7 @@ export function vistaActa({ estado, params: [mesaId], acciones }) {
     const { validacion, envio } = actualiza();
     if (!envio.ok) {
       const primero = {
-        foto: entradaFoto,
+        foto: fotoCampo.entrada,
         cifras: campos.find((campo) => validacion.errores.some((error) => error.campo === campo.id))?.entrada,
         confirmacion: casilla,
         motivo,
@@ -259,31 +226,24 @@ export function vistaActa({ estado, params: [mesaId], acciones }) {
     else enviar.disabled = false;
   }
 
-  pintaFoto();
   actualiza();
 
   const generales = campos.filter((campo) => !campo.candidatura);
   const candidaturas = campos.filter((campo) => campo.candidatura);
+  const titulo = anterior ? T.tituloCorreccion(mesa.nombre) : T.tituloCaptura(mesa.nombre);
 
   return {
-    titulo: `Acta de la ${mesa.nombre}`,
+    titulo,
     nodo: h(
       'div',
       { class: 'vista' },
       h('a', { class: 'volver', href: `#/mesa/${mesa.id}` }, icono('atras'), mesa.nombre),
-      h('h1', { tabindex: '-1' }, `Acta de la ${mesa.nombre}`),
+      h('h1', { tabindex: '-1' }, titulo),
       h('p', { class: 'entradilla' }, nombreColegio(estado, mesa.colegioId)),
+      anterior && resultadoValidacion(anterior, estado),
       h('p', { class: 'nota nota--pend' }, icono('aviso'), h('span', null, T.avisoFotos)),
 
-      h(
-        'section',
-        { class: 'grupo', 'aria-labelledby': 'acta-foto' },
-        h('h2', { id: 'acta-foto' }, T.tituloFoto),
-        entradaFoto,
-        etiquetaFoto,
-        errorFoto,
-        zonaFoto,
-      ),
+      h('section', { class: 'grupo', 'aria-labelledby': 'acta-foto' }, h('h2', { id: 'acta-foto' }, T.tituloFoto), fotoCampo.nodos),
 
       h(
         'section',
@@ -326,7 +286,7 @@ export function detalleActa(acta, mesa, estado) {
     acta.descuadre &&
       h(
         'div',
-        { class: 'nota nota--error' },
+        { class: 'nota nota--error', id: 'acta-descuadre' },
         icono('aviso'),
         h(
           'div',
@@ -350,7 +310,11 @@ export function detalleActa(acta, mesa, estado) {
           CONFIG.candidaturas.map(({ id, nombre }) => fila(nombre, acta.cifras.candidaturas[id])),
         ),
       ),
-      h('p', { class: 'evidencia__nota' }, T.enviadaPor(remitente, formateaHora(acta.enviadaEn))),
+      h(
+        'p',
+        { class: 'evidencia__nota', id: 'acta-envio' },
+        `${acta.version > 1 ? `${T.version(acta.version)}. ` : ''}${T.enviadaPor(remitente, formateaHora(acta.enviadaEn))}`,
+      ),
     ),
     h(
       'section',

@@ -68,7 +68,16 @@ export const CONFIG = {
       motivo: 'Motivo',
       motivoAyuda: (minimo) => `Explica qué ves en el acta. Mínimo ${minimo} caracteres.`,
 
+      tituloCaptura: (mesa) => `Acta de la ${mesa}`,
+      tituloCorreccion: (mesa) => `Corregir el acta de la ${mesa}`,
+      yaEnviada: {
+        enviada: 'El acta está enviada y pendiente de validar.',
+        validada: 'El acta ya está validada.',
+      },
+      version: (n) => `Versión ${n} del acta`,
+
       enviar: 'Enviar acta',
+      reenviar: 'Reenviar acta',
       enviada: 'Acta enviada. Queda pendiente de validar.',
       falta: {
         foto: 'Falta la foto del acta.',
@@ -79,6 +88,88 @@ export const CONFIG = {
 
       enviadaConDescuadre: 'Enviada con descuadre',
       enviadaPor: (quien, cuando) => `Enviada por ${quien} el ${cuando}.`,
+    },
+  },
+
+  // Doble confirmacion: valida un apoderado o el administrador, nunca quien envio.
+  validacion: {
+    motivoMinimo: 10,
+    textos: {
+      titulo: 'Validación',
+      instruccion: 'Coteja las cifras con la foto antes de validar. Hasta entonces, esta mesa no cuenta en el consolidado.',
+      validar: 'Validar acta',
+      devolver: 'Devolver al interventor',
+      motivoDevolucion: 'Motivo de la devolución',
+      motivoAyuda: (minimo) => `Di qué hay que corregir. Mínimo ${minimo} caracteres.`,
+      confirmarDevolucion: 'Confirmar devolución',
+      cancelar: 'Cancelar',
+      faltaMotivo: 'Escribe el motivo de la devolución.',
+      validada: 'Acta validada.',
+      devuelta: 'Acta devuelta al interventor.',
+      validadaPor: (quien, cuando) => `Validada por ${quien} el ${cuando}.`,
+      devueltaTitulo: 'Acta devuelta',
+      devueltaPor: (quien, cuando) => `Devuelta por ${quien} el ${cuando}.`,
+      corregir: 'Corregir y reenviar',
+      pendientes: (n) => (n === 1 ? 'Hay 1 acta pendiente de validar.' : `Hay ${n} actas pendientes de validar.`),
+    },
+  },
+
+  reclamaciones: {
+    textoMinimo: 10,
+    textos: {
+      titulo: 'Reclamaciones',
+      ninguna: 'No hay reclamaciones registradas en esta mesa.',
+      nueva: 'Registrar reclamación',
+      tituloNueva: (mesa) => `Reclamación en la ${mesa}`,
+      texto: 'Qué ha pasado',
+      textoAyuda: (minimo) => `Descríbelo con tus palabras. Mínimo ${minimo} caracteres.`,
+      foto: 'Foto (opcional)',
+      anadirFoto: 'Añadir foto',
+      fotoAlt: (mesa) => `Foto adjunta a una reclamación de la ${mesa}`,
+      huellaFoto: 'Huella SHA-256 de la foto',
+      horaNota: 'Se registra con la hora del dispositivo en el momento de guardarla. Después no se puede editar ni borrar.',
+      guardar: 'Registrar reclamación',
+      faltaTexto: 'Escribe la reclamación.',
+      registrada: 'Reclamación registrada.',
+      autor: (quien, cuando) => `${quien} · ${cuando}`,
+    },
+  },
+
+  // Registro de auditoria: que acciones se apuntan y como se describen.
+  auditoria: {
+    acciones: {
+      'datos-cargados': 'Datos de ejemplo cargados',
+      'acta-enviada': 'Acta enviada',
+      'acta-validada': 'Acta validada',
+      'acta-devuelta': 'Acta devuelta',
+      'reclamacion-registrada': 'Reclamación registrada',
+    },
+    detalle: {
+      datosCargados: (colegios, mesas, perfiles) => `${colegios} colegios, ${mesas} mesas y ${perfiles} perfiles.`,
+      actaEnviada: (acta) => `Versión ${acta.version}${acta.descuadre ? ', con descuadre' : ''}. Foto ${acta.fotoSha256}`,
+      actaValidada: (acta) => `Versión ${acta.version}.`,
+      actaDevuelta: (acta) => `Versión ${acta.version}. Motivo: ${acta.devolucion.motivo}`,
+      reclamacion: (reclamacion) => (reclamacion.fotoSha256 ? `Con foto ${reclamacion.fotoSha256}` : 'Sin foto.'),
+    },
+    textos: {
+      titulo: 'Auditoría',
+      entradilla: 'Registro de acciones. Solo se añade: la aplicación no edita ni borra entradas.',
+      avisoTitulo: 'Muestra el mecanismo, no es una garantía',
+      aviso:
+        'Cada entrada lleva la huella de la anterior, así que cambiar una rompe la cadena. Pero la cadena entera está guardada en este navegador: quien tenga acceso a él puede reescribirla de principio a fin y volver a encadenarla. Eso solo lo impide un servidor que guarde las huellas fuera del dispositivo.',
+      verificar: 'Verificar cadena',
+      integra: (n) => `La cadena encaja: ${n === 1 ? '1 entrada enlazada' : `${n} entradas enlazadas`} correctamente.`,
+      integraNota: 'Que encaje significa que es coherente consigo misma, no que nadie la haya reescrito.',
+      rota: (seq) => `La cadena se rompe en la entrada ${seq}.`,
+      rotaNota: {
+        secuencia: 'Falta o sobra una entrada antes de esta.',
+        enlace: 'Esta entrada no apunta a la huella de la anterior.',
+        contenido: 'El contenido de esta entrada no coincide con su huella.',
+      },
+      vacia: 'Todavía no hay acciones registradas.',
+      sinPerfil: 'Sin perfil',
+      entrada: (seq) => `Entrada ${seq}`,
+      huella: 'Huella de la entrada',
     },
   },
 
@@ -93,7 +184,7 @@ export const CONFIG = {
       'Perfiles simulados. En esta demo cualquiera puede cambiar de perfil: no es seguridad real.',
     reiniciarTitulo: '¿Reiniciar la demo?',
     reiniciarTexto:
-      'Se borrará todo lo guardado en este navegador: perfiles, colegios, mesas y cualquier dato que hayas introducido. No se puede deshacer.',
+      'Se borrará todo lo guardado en este navegador: perfiles, colegios, mesas, actas, fotos, reclamaciones y el registro de auditoría. No se puede deshacer.',
     sinEspacio:
       'No queda espacio en este dispositivo para guardar más datos. Libera espacio o reinicia la demo.',
     errorGuardado: 'No se han podido guardar los datos en este navegador.',
@@ -116,6 +207,11 @@ export const CONFIG = {
       titulo: 'Sincronización entre dispositivos',
       texto:
         'Los datos se quedan en este navegador. Lo que se introduce aquí no llega a ningún otro dispositivo.',
+    },
+    {
+      titulo: 'Un registro que no se pueda alterar',
+      texto:
+        'El registro de auditoría encadena cada entrada con la huella de la anterior. Aquí eso enseña el mecanismo, pero no demuestra que el registro sea inalterable: en el navegador alguien podría reescribirlo entero y volver a encadenarlo. Eso solo lo impide un servidor.',
     },
   ],
 };

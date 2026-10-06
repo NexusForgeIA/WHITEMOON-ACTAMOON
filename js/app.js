@@ -1,26 +1,47 @@
-import { nuevaActa, registroFoto } from './actas.js';
+import { actaDe, actaDevuelta, actaValidada, nuevaActa, registroFoto } from './actas.js';
+import { nuevaEntrada } from './auditoria.js';
 import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
 import * as db from './db.js';
-import { navegacion, puedeVer, resuelve, rutaInicial } from './permisos.js';
+import { navegacion, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
 import { avisa, confirmar, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
 import { vistaActa } from './vistas/acta.js';
+import { vistaAuditoria } from './vistas/auditoria.js';
 import { vistaAyuda } from './vistas/ayuda.js';
 import { vistaMensaje } from './vistas/comun.js';
 import { vistaInicio } from './vistas/inicio.js';
 import { vistaMesa, vistaMesas } from './vistas/mesas.js';
 import { vistaOrganizacion } from './vistas/organizacion.js';
+import { vistaReclamacion } from './vistas/reclamacion.js';
 
 const VISTAS = {
   inicio: vistaInicio,
   mesas: vistaMesas,
   mesa: vistaMesa,
   acta: vistaActa,
+  reclamacion: vistaReclamacion,
+  auditoria: vistaAuditoria,
   organizacion: vistaOrganizacion,
   ayuda: vistaAyuda,
 };
 
-const estado = { perfiles: [], colegios: [], mesas: [], actas: [], perfil: null };
+const estado = { perfiles: [], colegios: [], mesas: [], actas: [], reclamaciones: [], auditoria: [], perfil: null };
+
+const D = CONFIG.auditoria.detalle;
+const ahora = () => new Date().toISOString();
+
+// Guarda los datos de una accion junto con su entrada de auditoria: o entra
+// todo o no entra nada.
+async function guardaConRegistro(lotes, accion, mesaId, detalle) {
+  const entrada = await nuevaEntrada(estado.auditoria.at(-1) ?? null, {
+    hora: ahora(),
+    perfil: estado.perfil,
+    accion,
+    mesaId,
+    detalle,
+  });
+  await db.guardar({ ...lotes, auditoria: [entrada] });
+}
 
 const acciones = {
   async elegirPerfil(id) {
@@ -34,7 +55,13 @@ const acciones = {
   async cargarEjemplo() {
     await intenta(async () => {
       await db.pidePersistencia();
-      await db.guardar(datosEjemplo());
+      const datos = datosEjemplo();
+      await guardaConRegistro(
+        datos,
+        'datos-cargados',
+        null,
+        D.datosCargados(datos.colegios.length, datos.mesas.length, datos.perfiles.length),
+      );
       await recarga();
       pinta({ foco: true });
       avisa('Datos de ejemplo cargados.');
@@ -56,9 +83,11 @@ const acciones = {
   },
 
   // Guarda foto y acta juntas: o entran las dos o ninguna. Devuelve si se guardo.
+  // Si corrige un acta devuelta, es una version nueva; la anterior no se toca.
   enviarActa({ mesa, cifras, validacion, motivo, foto }) {
     return intenta(async () => {
-      const fotoId = crypto.randomUUID();
+      // Una foto con id ya esta guardada: es la del acta devuelta, sin repetir.
+      const fotoId = foto.id ?? crypto.randomUUID();
       const acta = nuevaActa({
         id: crypto.randomUUID(),
         fotoId,
@@ -68,14 +97,57 @@ const acciones = {
         validacion,
         motivo,
         foto,
-        enviadaEn: new Date().toISOString(),
+        enviadaEn: ahora(),
+        version: (actaDe(estado.actas, mesa.id)?.version ?? 0) + 1,
       });
-      await db.guardar({ fotos: [registroFoto(fotoId, foto)], actas: [acta] });
+      const fotos = foto.id ? {} : { fotos: [registroFoto(fotoId, foto)] };
+      await guardaConRegistro({ ...fotos, actas: [acta] }, 'acta-enviada', mesa.id, D.actaEnviada(acta));
       await recarga();
       ir(`#/mesa/${mesa.id}`, CONFIG.acta.textos.enviada);
     });
   },
+
+  // Doble confirmacion. Devuelven si se guardo.
+  validarActa(mesa) {
+    return resuelveActa(mesa, 'acta-validada', (acta) => actaValidada(acta, estado.perfil, ahora()), D.actaValidada, CONFIG.validacion.textos.validada);
+  },
+
+  devolverActa(mesa, motivo) {
+    return resuelveActa(mesa, 'acta-devuelta', (acta) => actaDevuelta(acta, estado.perfil, motivo, ahora()), D.actaDevuelta, CONFIG.validacion.textos.devuelta);
+  },
+
+  registrarReclamacion({ mesa, texto, foto }) {
+    if (!puedeReclamar(estado.perfil, mesa)) return false;
+    return intenta(async () => {
+      const fotoId = foto ? crypto.randomUUID() : null;
+      const reclamacion = {
+        id: crypto.randomUUID(),
+        mesaId: mesa.id,
+        texto: texto.trim(),
+        fotoId,
+        fotoSha256: foto?.sha256 ?? null,
+        perfilId: estado.perfil.id,
+        creadaEn: ahora(),
+      };
+      const fotos = foto ? { fotos: [registroFoto(fotoId, foto)] } : {};
+      await guardaConRegistro({ ...fotos, reclamaciones: [reclamacion] }, 'reclamacion-registrada', mesa.id, D.reclamacion(reclamacion));
+      await recarga();
+      ir(`#/mesa/${mesa.id}`, CONFIG.reclamaciones.textos.registrada);
+    });
+  },
 };
+
+function resuelveActa(mesa, accion, transforma, detalle, aviso) {
+  const acta = actaDe(estado.actas, mesa.id);
+  if (!puedeValidar(estado.perfil, mesa, acta)) return false;
+  return intenta(async () => {
+    const resuelta = transforma(acta);
+    await guardaConRegistro({ actas: [resuelta] }, accion, mesa.id, detalle(resuelta));
+    await recarga();
+    pinta({ foco: true });
+    avisa(aviso);
+  });
+}
 
 // Ejecuta una accion que escribe en la base de datos y traduce el fallo a un
 // mensaje que se entienda. Devuelve si la accion termino bien.
@@ -91,11 +163,13 @@ async function intenta(fn) {
 }
 
 async function recarga() {
-  const [perfiles, colegios, mesas, actas, activo] = await Promise.all([
+  const [perfiles, colegios, mesas, actas, reclamaciones, auditoria, activo] = await Promise.all([
     db.todos('perfiles'),
     db.todos('colegios'),
     db.todos('mesas'),
     db.todos('actas'),
+    db.todos('reclamaciones'),
+    db.todos('auditoria'),
     db.leer('meta', 'perfilActivo'),
   ]);
   Object.assign(estado, {
@@ -103,6 +177,8 @@ async function recarga() {
     colegios,
     mesas,
     actas,
+    reclamaciones,
+    auditoria,
     perfil: perfiles.find((perfil) => perfil.id === activo?.valor) ?? null,
   });
 }
