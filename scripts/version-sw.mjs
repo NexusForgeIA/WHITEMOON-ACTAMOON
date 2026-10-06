@@ -21,10 +21,14 @@ const CARPETAS = {
   'js/': ['.js'],
 };
 const BINARIOS = /\.(png|woff2)$/;
+// No se guardan: la imagen de vista previa solo la piden WhatsApp y las redes
+// al compartir el enlace; sin conexion no hace falta.
+const FUERA = new Set(['assets/img/og.jpg']);
 
 function lista(carpeta, extensiones) {
   return readdirSync(new URL(carpeta, RAIZ), { withFileTypes: true }).flatMap((entrada) => {
     if (entrada.isDirectory()) return lista(`${carpeta}${entrada.name}/`, extensiones);
+    if (FUERA.has(carpeta + entrada.name)) return [];
     return !extensiones || extensiones.some((ext) => entrada.name.endsWith(ext)) ? [carpeta + entrada.name] : [];
   });
 }
