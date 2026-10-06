@@ -1,10 +1,71 @@
-// Equipo: colegios, mesas y perfiles, con quien cubre que. Solo administrador.
+// Equipo: colegios, mesas y perfiles, con quien cubre que, y los nombres de
+// las candidaturas. Solo administrador.
 
 import { CONFIG } from '../config.js';
+import { CANDIDATURA_MAXIMO } from '../gestion.js';
 import { h, icono } from '../ui.js';
 import { apoderadoDe, chipDeEstado, describeAmbito, interventorDe } from './comun.js';
 
 const T = CONFIG.gestion.textos;
+
+// Los tres nombres se editan y se guardan juntos: asi dos candidaturas pueden
+// intercambiarse el nombre. No se anaden ni se quitan.
+function seccionCandidaturas(estado, acciones) {
+  const error = h('p', { class: 'campo__error', id: 'error-candidaturas', role: 'alert', hidden: true });
+  const campos = estado.candidaturas.map(({ id, nombre }) => {
+    const entrada = h('input', {
+      id: `nombre-candidatura-${id}`,
+      class: 'campo__entrada campo__entrada--nombre',
+      type: 'text',
+      maxlength: String(CANDIDATURA_MAXIMO),
+      autocomplete: 'off',
+      'aria-describedby': 'candidaturas-ayuda error-candidaturas',
+      value: nombre,
+    });
+    return { id, entrada, nodo: h('div', { class: 'campo' }, h('label', { for: `nombre-candidatura-${id}` }, T.candidatura(id)), entrada) };
+  });
+  const muestra = (fallo) => {
+    if (!fallo) return;
+    error.textContent = CONFIG.gestion.errores[fallo.codigo] ?? CONFIG.textos.errorGuardado;
+    error.hidden = false;
+    (campos.find((campo) => campo.id === fallo.campo) ?? campos[0]).entrada.focus();
+  };
+  const guardar = h(
+    'button',
+    {
+      type: 'button',
+      class: 'boton',
+      id: 'guardar-candidaturas',
+      onclick: async () => {
+        error.hidden = true;
+        guardar.disabled = true;
+        const fallo = await acciones.renombraCandidaturas(Object.fromEntries(campos.map((campo) => [campo.id, campo.entrada.value])));
+        guardar.disabled = false;
+        muestra(fallo);
+      },
+    },
+    T.guardarCandidaturas,
+  );
+  const restaurar = h(
+    'button',
+    { type: 'button', class: 'boton boton--secundario', id: 'restaurar-candidaturas', onclick: async () => muestra(await acciones.restauraCandidaturas()) },
+    T.restaurarCandidaturas,
+  );
+  return h(
+    'section',
+    { class: 'grupo', 'aria-labelledby': 'equipo-candidaturas' },
+    h('h2', { id: 'equipo-candidaturas' }, T.candidaturas),
+    h('p', null, T.candidaturasNota),
+    h(
+      'div',
+      { class: 'grupo grupo--formulario' },
+      campos.map((campo) => campo.nodo),
+      h('p', { class: 'campo__ayuda', id: 'candidaturas-ayuda' }, T.candidaturaAyuda(CANDIDATURA_MAXIMO)),
+      error,
+      h('div', { class: 'acciones' }, guardar, restaurar),
+    ),
+  );
+}
 
 export function vistaOrganizacion({ estado, acciones }) {
   const perfiles = (rol) => estado.perfiles.filter((perfil) => perfil.rol === rol);
@@ -91,6 +152,8 @@ export function vistaOrganizacion({ estado, acciones }) {
         ),
         ['administrador', 'apoderado', 'interventor'].map((rol) => h('ul', { class: 'filas filas--perfiles', role: 'list', 'data-rol': rol }, perfiles(rol).map(perfil))),
       ),
+
+      seccionCandidaturas(estado, acciones),
     ),
   };
 }

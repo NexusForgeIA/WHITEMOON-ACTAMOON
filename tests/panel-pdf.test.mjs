@@ -119,9 +119,9 @@ test('filasDeSuma sigue el orden del acta', () => {
     ['Votantes', 912, null],
     ['Votos nulos', 6, null],
     ['Votos en blanco', 14, null],
-    ['Candidatura A', 390, 'A'],
-    ['Candidatura B', 330, 'B'],
-    ['Candidatura C', 173, 'C'],
+    ['PP', 390, 'A'],
+    ['VOX', 330, 'B'],
+    ['SALF', 173, 'C'],
   ]);
 });
 
@@ -295,7 +295,7 @@ test('el PDF de una mesa se abre y lleva sus datos, cifras, descuadre, reclamaci
     'Administrador, HORA(2026-01-01T21:00:00.000Z)',
     'Electores censados',
     'Votos en blanco',
-    'Candidatura C',
+    'SALF',
     'Acta enviada con descuadre.',
     'Nulos, blancos y candidaturas suman 1 voto más que los votantes.',
     'Motivo del descuadre: El acta suma 201',

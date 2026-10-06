@@ -1,5 +1,6 @@
 // Panel consolidado. Administrador: todo el municipio. Apoderado: sus colegios.
 
+import { candidaturas } from '../candidaturas.js';
 import { CONFIG } from '../config.js';
 import { consolida, filasDeSuma } from '../consolidado.js';
 import { mesasVisibles } from '../permisos.js';
@@ -16,7 +17,7 @@ function barra(indice, valor, maximo) {
 }
 
 function tablaDeSuma(suma, id) {
-  const filas = filasDeSuma(suma, CONFIG.acta.campos, CONFIG.candidaturas);
+  const filas = filasDeSuma(suma, CONFIG.acta.campos, candidaturas());
   const maximo = Math.max(0, ...filas.filter(([, , candidatura]) => candidatura).map(([, valor]) => valor));
   let indice = 0;
   return h(
@@ -45,10 +46,10 @@ function contador(clase, simbolo, etiqueta, valor, id) {
 }
 
 function desglose(grupo) {
-  const cabeceras = [...CONFIG.acta.campos.map((campo) => [campo.corto, campo.etiqueta]), ...CONFIG.candidaturas.map((c) => [c.id, c.nombre])];
+  const cabeceras = [...CONFIG.acta.campos.map((campo) => [campo.corto, campo.etiqueta]), ...candidaturas().map((c) => [c.id, c.nombre])];
   const celdas = (cifras) => [
     ...CONFIG.acta.campos.map(({ id }) => cifras[id]),
-    ...CONFIG.candidaturas.map(({ id }) => cifras.candidaturas[id]),
+    ...candidaturas().map(({ id }) => cifras.candidaturas[id]),
   ];
   const titulo = `desglose-${grupo.colegio.id}`;
   return h(
@@ -98,7 +99,7 @@ function desglose(grupo) {
 
 export function vistaPanel({ estado, acciones }) {
   const mesas = mesasVisibles(estado.perfil, estado.mesas);
-  const consolidado = consolida({ colegios: estado.colegios, mesas, actas: estado.actas, candidaturas: CONFIG.candidaturas });
+  const consolidado = consolida({ colegios: estado.colegios, mesas, actas: estado.actas, candidaturas: candidaturas() });
   const c = consolidado.contadores;
   const E = CONFIG.panel.estados;
   const ambito = describeAmbito(estado.perfil, estado);
@@ -160,7 +161,13 @@ export function vistaPanel({ estado, acciones }) {
         tablaDeSuma(consolidado.total.provisional, 'total-provisional'),
       ),
 
-      h('section', { class: 'grupo', 'aria-labelledby': 'panel-desglose' }, h('h2', { id: 'panel-desglose' }, T.desglose), consolidado.porColegio.map(desglose)),
+      h(
+        'section',
+        { class: 'grupo', 'aria-labelledby': 'panel-desglose' },
+        h('h2', { id: 'panel-desglose' }, T.desglose),
+        h('p', { class: 'evidencia__nota', id: 'leyenda-candidaturas' }, T.leyenda(candidaturas())),
+        consolidado.porColegio.map(desglose),
+      ),
 
       h('div', { class: 'acciones' }, h('a', { class: 'boton', id: 'ver-actividad', href: '#/panel/actividad' }, icono('panel'), CONFIG.kpi.textos.enlace), descargar),
     ),

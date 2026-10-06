@@ -1,5 +1,6 @@
 import { actaDe, actaDevuelta, actaValidada, nuevaActa, registroFoto } from './actas.js';
 import { nuevaEntrada } from './auditoria.js';
+import { usaNombres } from './candidaturas.js';
 import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
 import { pdfDelPanel, pdfDeMesa } from './documentos.js';
@@ -36,7 +37,7 @@ const VISTAS = {
   ayuda: vistaAyuda,
 };
 
-const estado = { perfiles: [], colegios: [], mesas: [], actas: [], reclamaciones: [], auditoria: [], perfil: null };
+const estado = { perfiles: [], colegios: [], mesas: [], actas: [], reclamaciones: [], auditoria: [], candidaturas: usaNombres(null), perfil: null };
 
 const D = CONFIG.auditoria.detalle;
 const ahora = () => new Date().toISOString();
@@ -220,7 +221,11 @@ async function gestiona(opera, { destino = null, aviso }) {
           }),
         );
       }
-      await db.guardar({ colegios: borrador.colegios, mesas: borrador.mesas, perfiles: borrador.perfiles, auditoria: entradas }, borrador.borrados);
+      // Los nombres de las candidaturas solo se guardan si alguno ha cambiado.
+      const nombres = borrador.registros.some((registro) => registro.objeto.tipo === 'candidatura')
+        ? { meta: [{ clave: 'candidaturas', valor: Object.fromEntries(borrador.candidaturas.map(({ id, nombre }) => [id, nombre])) }] }
+        : {};
+      await db.guardar({ colegios: borrador.colegios, mesas: borrador.mesas, perfiles: borrador.perfiles, ...nombres, auditoria: entradas }, borrador.borrados);
       await recarga();
     });
     if (!guardado) return null;
@@ -258,6 +263,35 @@ Object.assign(acciones, {
     if (!aceptado) return null;
     return gestiona((b) => gestion.borra(b, tipo, id), { destino: '#/organizacion', aviso: G.borrado });
   },
+
+  // nombres: { id: nombre }. Devuelve null o { codigo, campo } con la
+  // candidatura cuyo nombre no vale.
+  async renombraCandidaturas(nombres, aviso = G.candidaturasGuardadas) {
+    let campo = null;
+    const codigo = await gestiona(
+      (b) => {
+        try {
+          gestion.renombraCandidaturas(b, nombres);
+        } catch (error) {
+          campo = error.campo ?? null;
+          throw error;
+        }
+      },
+      { aviso },
+    );
+    return codigo ? { codigo, campo } : null;
+  },
+
+  async restauraCandidaturas() {
+    const porDefecto = CONFIG.candidaturas;
+    const aceptado = await confirmar({
+      titulo: G.restaurarTitulo,
+      texto: G.restaurarTexto(porDefecto.map(({ nombre }) => nombre).join(', ')),
+      aceptar: G.restaurarAceptar,
+    });
+    if (!aceptado) return null;
+    return acciones.renombraCandidaturas(Object.fromEntries(porDefecto.map(({ id, nombre }) => [id, nombre])), G.candidaturasRestauradas);
+  },
 });
 
 function resuelveActa(mesa, accion, transforma, detalle, aviso) {
@@ -286,7 +320,7 @@ async function intenta(fn) {
 }
 
 async function recarga() {
-  const [perfiles, colegios, mesas, actas, reclamaciones, auditoria, activo] = await Promise.all([
+  const [perfiles, colegios, mesas, actas, reclamaciones, auditoria, activo, nombres] = await Promise.all([
     db.todos('perfiles'),
     db.todos('colegios'),
     db.todos('mesas'),
@@ -294,6 +328,7 @@ async function recarga() {
     db.todos('reclamaciones'),
     db.todos('auditoria'),
     db.leer('meta', 'perfilActivo'),
+    db.leer('meta', 'candidaturas'),
   ]);
   Object.assign(estado, {
     perfiles,
@@ -302,6 +337,8 @@ async function recarga() {
     actas,
     reclamaciones,
     auditoria,
+    // Sin nombres guardados (o tras reiniciar la demo), los de config.js.
+    candidaturas: usaNombres(nombres?.valor ?? null),
     perfil: perfilVigente(perfiles, activo?.valor),
   });
 }

@@ -10,14 +10,20 @@
 //     numeran solos.
 //   - Desactivar un colegio cierra tambien sus mesas. Una mesa cerrada sigue
 //     contando en totales y KPI; solo deja de admitir capturas y reclamaciones.
+//   - Las candidaturas son siempre las mismas: solo cambia su nombre, que es
+//     una etiqueta. Las actas guardan las cifras por identificador (A, B, C),
+//     asi que renombrar no toca ninguna.
 
 export const NOMBRE_MAXIMO = 40;
+export const CANDIDATURA_MAXIMO = 20;
 
 export class ErrorGestion extends Error {
-  constructor(codigo) {
+  // campo: en los formularios con varios campos, cual es el que falla.
+  constructor(codigo, campo = null) {
     super(codigo);
     this.name = 'ErrorGestion';
     this.codigo = codigo;
+    this.campo = campo;
   }
 }
 
@@ -26,11 +32,12 @@ const estadoDe = (cosa) => (activo(cosa) ? 'activo' : 'desactivado');
 
 // Copia de trabajo. `registros` acumula lo que hay que apuntar en la
 // auditoria; `borrados`, lo que hay que quitar de la base de datos.
-export function abreBorrador({ colegios, mesas, perfiles, actas, reclamaciones }) {
+export function abreBorrador({ colegios, mesas, perfiles, actas, reclamaciones, candidaturas = [] }) {
   return {
     colegios: structuredClone(colegios),
     mesas: structuredClone(mesas),
     perfiles: structuredClone(perfiles),
+    candidaturas: structuredClone(candidaturas),
     actas,
     reclamaciones,
     registros: [],
@@ -213,4 +220,27 @@ export function borra(b, tipo, id) {
   } else {
     throw new ErrorGestion('perfil-no-se-borra');
   }
+}
+
+// Cambia el nombre de las candidaturas. nombres: { id: nombre }; la que no
+// venga se queda como esta. Se validan las tres juntas, asi que dos pueden
+// intercambiarse el nombre en un solo guardado. Cada nombre que cambia deja
+// su entrada, con el anterior y el nuevo.
+export function renombraCandidaturas(b, nombres) {
+  const limpios = b.candidaturas.map(({ id, nombre }) => {
+    const limpio = String(nombres[id] ?? nombre).trim().replace(/\s+/g, ' ');
+    if (limpio === '') throw new ErrorGestion('nombre-vacio', id);
+    if (limpio.length > CANDIDATURA_MAXIMO) throw new ErrorGestion('candidatura-larga', id);
+    return limpio;
+  });
+  limpios.forEach((nombre, i) => {
+    const primera = limpios.findIndex((otro) => otro.toLowerCase() === nombre.toLowerCase());
+    if (primera !== i) throw new ErrorGestion('candidatura-repetida', b.candidaturas[i].id);
+  });
+  b.candidaturas.forEach((candidatura, i) => {
+    const antes = candidatura.nombre;
+    if (limpios[i] === antes) return;
+    candidatura.nombre = limpios[i];
+    apunta(b, 'candidatura-renombrada', 'candidatura', candidatura, [{ campo: 'nombre', antes, despues: limpios[i] }]);
+  });
 }
