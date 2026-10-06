@@ -2,7 +2,7 @@
 // este navegador.
 
 const NOMBRE = 'actamoon';
-const VERSION = 1;
+const VERSION = 2;
 
 // Para anadir un almacen: se declara aqui y se sube VERSION. La actualizacion
 // solo crea lo que falta, asi que no borra datos existentes.
@@ -11,6 +11,8 @@ const ALMACENES = {
   colegios: { keyPath: 'id' },
   mesas: { keyPath: 'id' },
   perfiles: { keyPath: 'id' },
+  actas: { keyPath: 'id' },
+  fotos: { keyPath: 'id' },
 };
 
 export class ErrorAlmacenamiento extends Error {
@@ -47,9 +49,15 @@ async function transaccion(almacenes, modo, fn) {
   const db = await abrir();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(almacenes, modo);
-    const peticion = fn(tx);
-    tx.oncomplete = () => resolve(peticion?.result);
     tx.onerror = tx.onabort = () => reject(new ErrorAlmacenamiento(tx.error));
+    try {
+      const peticion = fn(tx);
+      tx.oncomplete = () => resolve(peticion?.result);
+    } catch (error) {
+      // Un put puede fallar al momento (por ejemplo, sin espacio): nada se guarda.
+      reject(new ErrorAlmacenamiento(error));
+      tx.abort();
+    }
   });
 }
 

@@ -124,6 +124,24 @@ bloque('6 - Portada', [
     ('accent', 'bg', AA_UI, 'icono de privacidad'),
 ])
 
+bloque('7 - Captura de acta', [
+    ('ink-2', 'surface-2', AA, 'chip sin acta'),
+    ('err', 'err-tint', AA, 'chip de descuadre'),
+    ('err', 'surface', AA, 'error bajo el campo y lista de pendientes'),
+    ('err', 'bg', AA, 'error de la foto y lista de pendientes sobre pagina'),
+    ('muted', 'bg', AA, 'ayuda del campo y notas de la evidencia'),
+    ('muted', 'surface', AA, 'ayuda del motivo dentro del descuadre'),
+    ('ink', 'bg', AA, 'etiquetas de campo y huella'),
+    ('ink', 'surface', AA, 'cifra tecleada'),
+    ('ink', 'ok-tint', AA, 'resumen: las cifras cuadran'),
+    ('ink', 'err-tint', AA, 'resumen: las cifras no cuadran'),
+    ('ok', 'ok-tint', AA_UI, 'icono y borde del resumen que cuadra'),
+    ('err', 'err-tint', AA_UI, 'icono y borde del resumen que no cuadra'),
+    ('err', 'surface', AA_UI, 'borde del campo con error y del bloque de descuadre'),
+    ('line-strong', 'bg', AA_UI, 'borde del campo y de la foto'),
+    ('accent', 'surface', AA_UI, 'casilla marcada'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")

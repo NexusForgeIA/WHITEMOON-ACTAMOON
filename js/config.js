@@ -1,12 +1,85 @@
 // Configuracion de la demo. Todo lo que dependeria de la eleccion o del pais
 // (ambito, textos, y mas adelante los campos del acta y los plazos) vive aqui.
 
+const votos = (n) => `${n} ${n === 1 ? 'voto' : 'votos'}`;
+
 export const CONFIG = {
   producto: 'ACTAMOON',
 
   eleccion: {
     tipo: 'Elecciones municipales',
     ambito: 'Municipio de Ejemplo',
+  },
+
+  candidaturas: [
+    { id: 'A', nombre: 'Candidatura A' },
+    { id: 'B', nombre: 'Candidatura B' },
+    { id: 'C', nombre: 'Candidatura C' },
+  ],
+
+  // El acta: que cifras se piden, limites y todos sus textos. Las reglas
+  // aritmeticas estan en validaciones.js.
+  acta: {
+    campos: [
+      { id: 'electores', etiqueta: 'Electores censados' },
+      { id: 'votantes', etiqueta: 'Votantes' },
+      { id: 'nulos', etiqueta: 'Votos nulos' },
+      { id: 'blancos', etiqueta: 'Votos en blanco' },
+    ],
+    motivoMinimo: 10,
+    fotoLadoMaximo: 1600,
+
+    textos: {
+      avisoFotos: 'No fotografíes actas reales con esta demo. Las fotos quedan en este dispositivo.',
+
+      tituloFoto: 'Foto del acta',
+      hacerFoto: 'Hacer foto',
+      repetirFoto: 'Repetir foto',
+      procesando: 'Procesando la foto.',
+      fotoIlegible: 'No se ha podido leer ese archivo como imagen. Prueba con otra foto.',
+      fotoAlt: (mesa) => `Foto del acta de la ${mesa}`,
+      cargandoFoto: 'Cargando la foto.',
+      fotoPerdida: 'La foto no está en este dispositivo.',
+
+      huella: 'Huella SHA-256 del archivo original',
+      copiarHuella: 'Copiar huella',
+      huellaCopiada: 'Huella copiada.',
+      huellaNoCopiada: 'No se ha podido copiar. Selecciona la huella a mano.',
+      hora: 'Hora de captura',
+      horaNota: 'Hora del dispositivo, no verificada.',
+      tamano: 'Tamaño del archivo',
+
+      tituloCifras: 'Cifras del acta',
+      tituloCandidaturas: 'Votos por candidatura',
+      cifraInvalida: 'Escribe un número entero, sin puntos ni decimales.',
+      cifraFalta: 'Falta esta cifra.',
+
+      incompleta: 'Rellena todas las cifras para comprobar las sumas.',
+      cuadra: 'Las cifras cuadran.',
+      noCuadra: 'Las cifras no cuadran.',
+      masVotantes: (n) => `Hay ${n} ${n === 1 ? 'votante' : 'votantes'} más que electores.`,
+      sobran: (n) => `Nulos, blancos y candidaturas suman ${votos(n)} más que los votantes.`,
+      faltan: (n) => `Nulos, blancos y candidaturas suman ${votos(n)} menos que los votantes.`,
+
+      descuadreTitulo: 'Enviar con descuadre',
+      descuadreTexto:
+        'Si el acta en papel dice exactamente esto, puedes enviarla así. Quedará marcada para quien la valide y en el consolidado.',
+      confirmaPapel: 'El acta en papel dice esto',
+      motivo: 'Motivo',
+      motivoAyuda: (minimo) => `Explica qué ves en el acta. Mínimo ${minimo} caracteres.`,
+
+      enviar: 'Enviar acta',
+      enviada: 'Acta enviada. Queda pendiente de validar.',
+      falta: {
+        foto: 'Falta la foto del acta.',
+        cifras: 'Faltan cifras o alguna no es un número entero.',
+        confirmacion: 'Marca «El acta en papel dice esto» para enviar un acta que no cuadra.',
+        motivo: 'Escribe el motivo del descuadre.',
+      },
+
+      enviadaConDescuadre: 'Enviada con descuadre',
+      enviadaPor: (quien, cuando) => `Enviada por ${quien} el ${cuando}.`,
+    },
   },
 
   roles: {

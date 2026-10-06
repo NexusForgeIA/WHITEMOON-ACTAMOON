@@ -1,8 +1,10 @@
+import { nuevaActa, registroFoto } from './actas.js';
 import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
 import * as db from './db.js';
 import { navegacion, puedeVer, resuelve, rutaInicial } from './permisos.js';
-import { avisa, confirmar, enlaceDeContacto, h, icono, limpiaAvisos } from './ui.js';
+import { avisa, confirmar, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
+import { vistaActa } from './vistas/acta.js';
 import { vistaAyuda } from './vistas/ayuda.js';
 import { vistaMensaje } from './vistas/comun.js';
 import { vistaInicio } from './vistas/inicio.js';
@@ -13,11 +15,12 @@ const VISTAS = {
   inicio: vistaInicio,
   mesas: vistaMesas,
   mesa: vistaMesa,
+  acta: vistaActa,
   organizacion: vistaOrganizacion,
   ayuda: vistaAyuda,
 };
 
-const estado = { perfiles: [], colegios: [], mesas: [], perfil: null };
+const estado = { perfiles: [], colegios: [], mesas: [], actas: [], perfil: null };
 
 const acciones = {
   async elegirPerfil(id) {
@@ -48,42 +51,74 @@ const acciones = {
     await intenta(async () => {
       await db.vaciarTodo();
       await recarga();
-      ir('#/');
-      avisa('Demo reiniciada. No queda ningún dato guardado.');
+      ir('#/', 'Demo reiniciada. No queda ningún dato guardado.');
+    });
+  },
+
+  // Guarda foto y acta juntas: o entran las dos o ninguna. Devuelve si se guardo.
+  enviarActa({ mesa, cifras, validacion, motivo, foto }) {
+    return intenta(async () => {
+      const fotoId = crypto.randomUUID();
+      const acta = nuevaActa({
+        id: crypto.randomUUID(),
+        fotoId,
+        mesaId: mesa.id,
+        perfil: estado.perfil,
+        cifras,
+        validacion,
+        motivo,
+        foto,
+        enviadaEn: new Date().toISOString(),
+      });
+      await db.guardar({ fotos: [registroFoto(fotoId, foto)], actas: [acta] });
+      await recarga();
+      ir(`#/mesa/${mesa.id}`, CONFIG.acta.textos.enviada);
     });
   },
 };
 
 // Ejecuta una accion que escribe en la base de datos y traduce el fallo a un
-// mensaje que se entienda.
+// mensaje que se entienda. Devuelve si la accion termino bien.
 async function intenta(fn) {
   try {
     await fn();
+    return true;
   } catch (error) {
     if (!(error instanceof db.ErrorAlmacenamiento)) throw error;
     avisa(error.sinEspacio ? CONFIG.textos.sinEspacio : CONFIG.textos.errorGuardado, 'error');
+    return false;
   }
 }
 
 async function recarga() {
-  const [perfiles, colegios, mesas, activo] = await Promise.all([
+  const [perfiles, colegios, mesas, actas, activo] = await Promise.all([
     db.todos('perfiles'),
     db.todos('colegios'),
     db.todos('mesas'),
+    db.todos('actas'),
     db.leer('meta', 'perfilActivo'),
   ]);
   Object.assign(estado, {
     perfiles,
     colegios,
     mesas,
+    actas,
     perfil: perfiles.find((perfil) => perfil.id === activo?.valor) ?? null,
   });
 }
 
-// Navega y repinta aunque el hash no cambie.
-function ir(hash) {
-  if (location.hash === hash) pinta({ foco: true });
-  else location.hash = hash;
+let avisoPendiente = null;
+
+// Navega y repinta aunque el hash no cambie. El aviso, si lo hay, se muestra
+// ya en la vista de destino.
+function ir(hash, aviso = null) {
+  if (location.hash === hash) {
+    pinta({ foco: true });
+    if (aviso) avisa(aviso);
+  } else {
+    avisoPendiente = aviso;
+    location.hash = hash;
+  }
 }
 
 function vistaActual() {
@@ -105,6 +140,7 @@ function vistaActual() {
 }
 
 function pinta({ foco = false } = {}) {
+  liberaUrls();
   const { ruta, vista } = vistaActual();
   document.title = `${vista.titulo} · ${CONFIG.producto} (demo)`;
   document.getElementById('contenido').replaceChildren(vista.nodo);
@@ -170,6 +206,8 @@ async function arranca() {
   window.addEventListener('hashchange', () => {
     limpiaAvisos();
     pinta({ foco: true });
+    if (avisoPendiente) avisa(avisoPendiente);
+    avisoPendiente = null;
   });
 }
 

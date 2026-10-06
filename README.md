@@ -30,7 +30,7 @@ y abrir `http://localhost:8000/`.
 ## Comprobaciones
 
 ```
-node --test                           # permisos por perfil, datos de ejemplo, ausencia de red, CSP
+node --test                           # aritmética del acta, hash, permisos, ausencia de red, CSP, portada
 python scripts/verifica-contraste.py  # contraste AA de la paleta (lee assets/css/tokens.css)
 ```
 
@@ -42,10 +42,14 @@ portada.html             portada de presentación (textos en js/config.js)
 assets/css/tokens.css    paleta, tipografía y espaciado
 assets/css/app.css       componentes y disposición
 assets/fonts/            IBM Plex Sans y Mono (licencia OFL en OFL.txt)
-js/config.js             ámbito de la elección y textos
+js/config.js             ámbito de la elección, campos del acta, candidaturas y textos
 js/app.js                arranque, router y acciones
 js/db.js                 IndexedDB
-js/permisos.js           qué ve cada perfil (módulo puro)
+js/permisos.js           qué ve y qué captura cada perfil (módulo puro)
+js/validaciones.js       aritmética del acta y condiciones de envío (módulo puro)
+js/hash.js               SHA-256 con Web Crypto
+js/foto.js               huella del original y copia reducida a 1600 px
+js/actas.js              registros de acta (módulo puro)
 js/datos-ejemplo.js      Municipio de Ejemplo: colegios, mesas y perfiles
 js/vistas/               una por pantalla
 scripts/                 verificación de contraste

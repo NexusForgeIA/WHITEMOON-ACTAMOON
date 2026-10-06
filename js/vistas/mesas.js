@@ -1,7 +1,9 @@
+import { actaDe } from '../actas.js';
 import { CONFIG } from '../config.js';
-import { mesasVisibles } from '../permisos.js';
+import { mesasVisibles, puedeCapturar } from '../permisos.js';
 import { h, icono } from '../ui.js';
-import { apoderadoDe, chipSinActa, interventorDe, nombreColegio, vistaMensaje } from './comun.js';
+import { detalleActa } from './acta.js';
+import { apoderadoDe, chipsDeMesa, interventorDe, nombreColegio, vistaMensaje } from './comun.js';
 
 export function vistaMesas({ estado }) {
   const visibles = mesasVisibles(estado.perfil, estado.mesas);
@@ -33,7 +35,7 @@ export function vistaMesas({ estado }) {
                     'a',
                     { class: 'fila', href: `#/mesa/${mesa.id}` },
                     h('span', { class: 'fila__titulo' }, mesa.nombre),
-                    chipSinActa(),
+                    chipsDeMesa(actaDe(estado.actas, mesa.id)),
                     icono('adelante'),
                   ),
                 ),
@@ -55,6 +57,7 @@ export function vistaMesa({ estado, params: [mesaId] }) {
   }
 
   const dato = (termino, valor) => h('div', null, h('dt', null, termino), h('dd', null, valor));
+  const acta = actaDe(estado.actas, mesa.id);
 
   return {
     titulo: mesa.nombre,
@@ -63,7 +66,10 @@ export function vistaMesa({ estado, params: [mesaId] }) {
       { class: 'vista' },
       h('a', { class: 'volver', href: '#/mesas' }, icono('atras'), 'Mesas'),
       h('h1', { tabindex: '-1' }, mesa.nombre),
-      h('p', null, chipSinActa()),
+      h('p', null, chipsDeMesa(acta)),
+      !acta &&
+        puedeCapturar(estado.perfil, mesa) &&
+        h('a', { class: 'boton', id: 'capturar-acta', href: `#/mesa/${mesa.id}/acta` }, icono('camara'), 'Capturar acta'),
       h(
         'dl',
         { class: 'ficha' },
@@ -72,6 +78,7 @@ export function vistaMesa({ estado, params: [mesaId] }) {
         dato('Interventor', interventorDe(estado, mesa.id)?.etiqueta ?? 'Sin asignar'),
         dato('Apoderado', apoderadoDe(estado, mesa.colegioId)?.etiqueta ?? 'Sin asignar'),
       ),
+      acta && detalleActa(acta, mesa, estado),
     ),
   };
 }

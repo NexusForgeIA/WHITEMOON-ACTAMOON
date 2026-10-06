@@ -25,8 +25,43 @@ export function apoderadoDe(estado, colegioId) {
   return estado.perfiles.find((perfil) => perfil.rol === 'apoderado' && perfil.colegioIds.includes(colegioId));
 }
 
-export function chipSinActa() {
-  return h('span', { class: 'chip chip--pend' }, icono('pendiente'), 'Sin acta');
+// Estado de la mesa segun su acta vigente.
+export function chipsDeMesa(acta) {
+  if (!acta) return h('span', { class: 'chip chip--neutro' }, icono('pendiente'), 'Sin acta');
+  return h(
+    'span',
+    { class: 'chips' },
+    h('span', { class: 'chip chip--pend' }, icono('pendiente'), 'Pendiente de validar'),
+    acta.descuadre && h('span', { class: 'chip chip--err' }, icono('aviso'), 'Descuadre'),
+  );
+}
+
+const UNIDADES = ['B', 'kB', 'MB', 'GB', 'TB'];
+const numero = new Intl.NumberFormat('es', { maximumFractionDigits: 1 });
+
+export function tamano(bytes) {
+  let valor = bytes;
+  let i = 0;
+  while (valor >= 1024 && i < UNIDADES.length - 1) {
+    valor /= 1024;
+    i += 1;
+  }
+  return `${numero.format(valor)} ${UNIDADES[i]}`;
+}
+
+const fechaHora = new Intl.DateTimeFormat('es', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'short',
+});
+
+// Fecha y hora con segundos y zona horaria, a partir de un instante ISO.
+export function formateaHora(iso) {
+  return fechaHora.format(new Date(iso));
 }
 
 export function vistaMensaje(titulo, texto, enlace) {

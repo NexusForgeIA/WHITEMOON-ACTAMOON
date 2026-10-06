@@ -1,19 +1,7 @@
 import { CONFIG } from '../config.js';
 import { espacio } from '../db.js';
 import { h } from '../ui.js';
-
-const UNIDADES = ['B', 'kB', 'MB', 'GB', 'TB'];
-const numero = new Intl.NumberFormat('es', { maximumFractionDigits: 1 });
-
-function tamano(bytes) {
-  let valor = bytes;
-  let i = 0;
-  while (valor >= 1024 && i < UNIDADES.length - 1) {
-    valor /= 1024;
-    i += 1;
-  }
-  return `${numero.format(valor)} ${UNIDADES[i]}`;
-}
+import { tamano } from './comun.js';
 
 export function vistaAyuda() {
   const almacenamiento = h('p', { id: 'espacio-usado' }, 'Calculando el espacio usado.');

@@ -8,6 +8,7 @@ export const RUTAS = [
   { id: 'inicio', patron: /^#?\/?$/, roles: null, nav: { href: '#/', etiqueta: 'Perfil', icono: 'perfil' } },
   { id: 'mesas', patron: /^#\/mesas$/, roles: TODOS, nav: { href: '#/mesas', etiqueta: 'Mesas', icono: 'mesas' } },
   { id: 'mesa', patron: /^#\/mesa\/([\w-]+)$/, roles: TODOS, padre: 'mesas' },
+  { id: 'acta', patron: /^#\/mesa\/([\w-]+)\/acta$/, roles: ['interventor'], padre: 'mesas' },
   {
     id: 'organizacion',
     patron: /^#\/organizacion$/,
@@ -39,6 +40,11 @@ export function mesasVisibles(perfil, mesas) {
   if (perfil.rol === 'administrador') return mesas;
   if (perfil.rol === 'apoderado') return mesas.filter((mesa) => perfil.colegioIds.includes(mesa.colegioId));
   return mesas.filter((mesa) => perfil.mesaIds.includes(mesa.id));
+}
+
+// Solo el interventor de la mesa captura su acta.
+export function puedeCapturar(perfil, mesa) {
+  return perfil?.rol === 'interventor' && perfil.mesaIds.includes(mesa.id);
 }
 
 // Donde aterriza cada perfil al elegirlo.
