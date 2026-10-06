@@ -101,6 +101,7 @@ manifest.webmanifest     nombre, colores e iconos al instalarla
 assets/css/tokens.css    paleta, tipografía y espaciado
 assets/css/app.css       componentes y disposición
 assets/fonts/            IBM Plex Sans y Mono (licencia OFL en OFL.txt)
+assets/img/og.jpg        imagen de la vista previa al compartir el enlace (no se guarda sin conexión)
 js/config.js             ámbito de la elección, campos del acta, candidaturas y textos
 js/app.js                arranque, router y acciones
 js/db.js                 IndexedDB

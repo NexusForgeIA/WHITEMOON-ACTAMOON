@@ -36,6 +36,13 @@ const PERMITIDAS = new Set([
   'https://wa.me/',
 ]);
 
+// Etiquetas de vista previa (WhatsApp y redes): tienen que llevar la direccion
+// publica completa. La pagina no la pide: la lee quien comparte el enlace.
+// Solo valen en estas tres etiquetas de los HTML y solo hacia la propia demo.
+const PUBLICA = 'https://nexusforgeia.github.io/WHITEMOON-ACTAMOON/';
+const VISTA_PREVIA = /^\s*<meta (?:property="og:(?:url|image)"|name="twitter:image") content="([^"]+)">\s*$/;
+const esVistaPrevia = (nombre, linea) => nombre.endsWith('.html') && (VISTA_PREVIA.exec(linea)?.[1] ?? '').startsWith(PUBLICA);
+
 function archivos(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entrada) => {
     if (IGNORADOS.has(entrada.name)) return [];
@@ -86,6 +93,7 @@ test('el codigo no contiene URL externas', () => {
   const hallazgos = [];
   for (const { nombre, texto } of codigo) {
     texto.split('\n').forEach((linea, i) => {
+      if (esVistaPrevia(nombre, linea)) return;
       for (const url of linea.match(URL_EXTERNA) ?? []) {
         if (!PERMITIDAS.has(url)) hallazgos.push(`${nombre}:${i + 1} ${url}`);
       }
@@ -134,6 +142,51 @@ test('cada pagina lleva una CSP que solo permite el propio origen', () => {
       }
     }
   }
+});
+
+test('la vista previa al compartir: etiquetas completas, con direcciones absolutas de la propia demo', () => {
+  const contenido = (texto, clave) => new RegExp(`<meta (?:property|name)="${clave}" content="([^"]*)">`).exec(texto)?.[1];
+  const imagen = `${PUBLICA}assets/img/og.jpg`;
+  const titulo = 'ACTAMOON · Control de actas por mesa, con rastro';
+  const descripcion = 'Demo de presentación con datos ficticios para interventores y apoderados. No es un sistema oficial.';
+  assert.deepEqual(paginas.map((p) => p.nombre).sort(), ['index.html', 'portada.html']);
+  for (const { nombre, texto } of paginas) {
+    const esperado = {
+      'og:type': 'website',
+      'og:locale': 'es_ES',
+      'og:site_name': 'ACTAMOON',
+      'og:title': titulo,
+      'og:description': descripcion,
+      'og:url': nombre === 'index.html' ? PUBLICA : PUBLICA + nombre,
+      'og:image': imagen,
+      'og:image:type': 'image/jpeg',
+      'og:image:width': '1200',
+      'og:image:height': '630',
+      'og:image:alt': 'Logo de ACTAMOON y la frase Control de actas por mesa, con rastro.',
+      'twitter:card': 'summary_large_image',
+      'twitter:title': titulo,
+      'twitter:description': descripcion,
+      'twitter:image': imagen,
+    };
+    for (const [clave, valor] of Object.entries(esperado)) assert.equal(contenido(texto, clave), valor, `${nombre}: ${clave}`);
+  }
+  // La excepcion no abre la puerta a otras direcciones ni a otras etiquetas.
+  assert.ok(esVistaPrevia('index.html', `  <meta property="og:image" content="${imagen}">\r`));
+  assert.ok(!esVistaPrevia('index.html', '  <meta property="og:image" content="https://otro.example/og.jpg">'));
+  assert.ok(!esVistaPrevia('index.html', `  <script src="${PUBLICA}js/app.js"></script>`));
+  assert.ok(!esVistaPrevia('js/app.js', `  <meta property="og:image" content="${imagen}">`));
+});
+
+test('la imagen de vista previa es un JPEG de 1200x630, ligero y fuera de la cache sin conexion', () => {
+  const bytes = readFileSync(join(RAIZ, 'assets/img/og.jpg'));
+  assert.deepEqual([...bytes.subarray(0, 3)], [0xff, 0xd8, 0xff], 'es un JPEG');
+  assert.ok(bytes.length < 300 * 1024, `${bytes.length} bytes`);
+  // Cabecera SOF0/SOF2 del JPEG: alto y ancho.
+  let i = 2;
+  while (i < bytes.length && !(bytes[i] === 0xff && (bytes[i + 1] === 0xc0 || bytes[i + 1] === 0xc2))) i += 2 + bytes.readUInt16BE(i + 2);
+  assert.deepEqual([bytes.readUInt16BE(i + 7), bytes.readUInt16BE(i + 5)], [1200, 630]);
+  const sw = codigo.find((archivo) => archivo.nombre === 'sw.js').texto;
+  assert.ok(!sw.includes('og.jpg'), 'no se guarda para usar sin conexion');
 });
 
 test('cada pagina pide no indexar', () => {
