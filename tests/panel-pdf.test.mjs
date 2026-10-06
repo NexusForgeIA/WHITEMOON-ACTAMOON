@@ -285,7 +285,7 @@ test('el PDF de una mesa se abre y lleva sus datos, cifras, descuadre, reclamaci
   const t = doc.todo;
   for (const esperado of [
     'Acta de la Mesa 004',
-    'Elecciones municipales · Municipio de Ejemplo',
+    'Elecciones generales / municipales · Municipio de Ejemplo',
     'Colegio 2',
     'Interventor 4',
     'Apoderado 1',
