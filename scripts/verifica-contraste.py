@@ -78,9 +78,9 @@ bloque('2 - Botones y barras', [
     ('ink', 'surface-2', AA, 'boton secundario en hover'),
     ('surface', 'err', AA, 'boton destructivo (reiniciar demo)'),
     ('surface', 'err-hover', AA, 'boton destructivo en hover'),
-    ('on-dark', 'ink', AA, 'texto en cabecera y barra inferior'),
-    ('on-dark-muted', 'ink', AA, 'secundario en cabecera y barra'),
-    ('accent-on-dark', 'ink', AA, 'sello del logo y destino activo'),
+    ('on-dark', 'ink', AA, 'texto en la barra inferior'),
+    ('on-dark-muted', 'ink', AA, 'destino inactivo en la barra inferior'),
+    ('accent-on-dark', 'ink', AA_UI, 'marca del destino activo en la barra inferior'),
     ('accent', 'accent-tint', AA, 'destino activo en lateral, perfil activo'),
     ('ink', 'accent-tint', AA, 'texto del perfil activo'),
     ('ink-2', 'accent-tint', AA, 'secundario del perfil activo'),
@@ -100,12 +100,22 @@ bloque('4 - Contornos y foco (3:1)', [
     *[('line-strong', f, AA_UI, 'borde de control') for f in FONDOS],
     *[('accent', f, AA_UI, 'foco visible') for f in FONDOS],
     ('accent', 'accent-tint', AA_UI, 'foco y borde del perfil activo'),
-    ('aviso', 'ink', AA_UI, 'foco sobre cabecera y barra inferior'),
+    ('aviso', 'ink', AA_UI, 'foco sobre la barra inferior'),
     ('ink', 'aviso', AA_UI, 'foco sobre el banner'),
     ('pend', 'pend-tint', AA_UI, 'borde del aviso de perfiles simulados'),
 ])
 
-bloque('5 - Portada', [
+# El logo lleva sus colores dentro del SVG; son los de --ink y --accent.
+bloque('5 - Cabecera clara y logo', [
+    ('ink', 'surface', AA, 'perfil activo en la cabecera'),
+    ('ink', 'surface-2', AA, 'perfil activo en hover'),
+    ('muted', 'surface', AA, 'ambito de la eleccion'),
+    ('line-strong', 'surface', AA_UI, 'borde del boton de perfil'),
+    ('ink', 'surface', AA_UI, 'rotulo del logo'),
+    ('accent', 'surface', AA_UI, 'sello del logo y foco del enlace de marca'),
+])
+
+bloque('6 - Portada', [
     ('muted', 'surface', AA, 'nota del hero'),
     ('accent', 'bg', AA, 'numero de paso y su aro'),
     ('on-dark', 'ink', AA, 'titulos de la banda "Que no hace"'),

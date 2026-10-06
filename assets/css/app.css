@@ -140,42 +140,28 @@ h1:focus {
   align-items: center;
   gap: var(--s-4);
   padding: var(--s-2) var(--s-4);
-  background: var(--ink);
-  color: var(--on-dark);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
 }
 
-.cabecera :focus-visible {
-  outline-color: var(--aviso);
-}
-
+/* El logo es para fondo claro: rotulo en tinta y sello en petroleo. */
 .marca {
   display: flex;
+  flex: none;
   align-items: center;
-  gap: var(--s-2);
   min-height: 2.75rem;
-  color: var(--on-dark);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-decoration: none;
 }
 
-.marca:hover {
-  color: var(--on-dark);
-}
-
-.marca__sello {
-  width: 1.75rem;
+.marca img {
+  display: block;
+  width: auto;
   height: 1.75rem;
-  fill: none;
-  stroke: var(--accent-on-dark);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .cabecera__ambito {
   display: none;
-  color: var(--on-dark-muted);
+  color: var(--muted);
   font-size: var(--text-sm);
 }
 
@@ -183,19 +169,26 @@ h1:focus {
   display: flex;
   align-items: center;
   gap: var(--s-2);
+  min-width: 0;
   min-height: 2.75rem;
   margin-left: auto;
   padding: 0 var(--s-3);
-  border: 1px solid var(--on-dark-muted);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  color: var(--on-dark);
+  color: var(--ink);
   font-size: var(--text-sm);
   text-decoration: none;
+  white-space: nowrap;
+}
+
+.cabecera__perfil span:not(.oculto) {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cabecera__perfil:hover {
-  border-color: var(--on-dark);
-  color: var(--on-dark);
+  background: var(--surface-2);
+  color: var(--ink);
 }
 
 /* ---- Navegacion: barra inferior en movil, lateral en escritorio ---------- */
@@ -677,6 +670,10 @@ main:focus {
   .cabecera {
     grid-area: cabecera;
     padding: var(--s-2) var(--s-6);
+  }
+
+  .marca img {
+    height: 2rem;
   }
 
   .cabecera__ambito {
