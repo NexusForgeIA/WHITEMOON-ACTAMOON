@@ -2,16 +2,18 @@ import { actaDe, actaDevuelta, actaValidada, nuevaActa, registroFoto } from './a
 import { nuevaEntrada } from './auditoria.js';
 import { CONFIG } from './config.js';
 import { datosEjemplo } from './datos-ejemplo.js';
+import { pdfDelPanel, pdfDeMesa } from './documentos.js';
 import * as db from './db.js';
 import { navegacion, puedeReclamar, puedeValidar, puedeVer, resuelve, rutaInicial } from './permisos.js';
-import { avisa, confirmar, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
+import { avisa, confirmar, descarga, enlaceDeContacto, h, icono, liberaUrls, limpiaAvisos } from './ui.js';
 import { vistaActa } from './vistas/acta.js';
 import { vistaAuditoria } from './vistas/auditoria.js';
 import { vistaAyuda } from './vistas/ayuda.js';
-import { vistaMensaje } from './vistas/comun.js';
+import { formateaHora, vistaMensaje } from './vistas/comun.js';
 import { vistaInicio } from './vistas/inicio.js';
 import { vistaMesa, vistaMesas } from './vistas/mesas.js';
 import { vistaOrganizacion } from './vistas/organizacion.js';
+import { vistaPanel } from './vistas/panel.js';
 import { vistaReclamacion } from './vistas/reclamacion.js';
 
 const VISTAS = {
@@ -20,6 +22,7 @@ const VISTAS = {
   mesa: vistaMesa,
   acta: vistaActa,
   reclamacion: vistaReclamacion,
+  panel: vistaPanel,
   auditoria: vistaAuditoria,
   organizacion: vistaOrganizacion,
   ayuda: vistaAyuda,
@@ -136,6 +139,32 @@ const acciones = {
     });
   },
 };
+
+// Los PDF se generan en el navegador con lo que hay guardado.
+Object.assign(acciones, {
+  async descargarPdfMesa(mesa) {
+    const acta = actaDe(estado.actas, mesa.id);
+    const foto = await db.leer('fotos', acta.fotoId);
+    const pdf = pdfDeMesa({
+      mesa,
+      colegio: estado.colegios.find((colegio) => colegio.id === mesa.colegioId),
+      acta,
+      reclamaciones: estado.reclamaciones.filter((r) => r.mesaId === mesa.id).sort((a, b) => a.creadaEn.localeCompare(b.creadaEn)),
+      perfiles: estado.perfiles,
+      fotoJpeg: foto ? new Uint8Array(await foto.vista.arrayBuffer()) : null,
+      hora: formateaHora,
+      generadoEn: ahora(),
+    });
+    descarga(pdf.bytes(), CONFIG.pdf.textos.archivoMesa(mesa.id, acta.version), 'application/pdf');
+    avisa(CONFIG.pdf.textos.generando);
+  },
+
+  async descargarPdfPanel(consolidado, ambito) {
+    const pdf = pdfDelPanel({ consolidado, ambito, hora: formateaHora, generadoEn: ahora() });
+    descarga(pdf.bytes(), CONFIG.pdf.textos.archivoPanel, 'application/pdf');
+    avisa(CONFIG.pdf.textos.generando);
+  },
+});
 
 function resuelveActa(mesa, accion, transforma, detalle, aviso) {
   const acta = actaDe(estado.actas, mesa.id);

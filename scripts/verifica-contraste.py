@@ -156,6 +156,18 @@ bloque('8 - Validacion, reclamaciones y auditoria', [
     ('err', 'surface', AA_UI, 'borde del bloque de devolucion'),
 ])
 
+bloque('9 - Panel consolidado', [
+    ('ink', 'surface', AA, 'numero de cada contador y cifras de las tablas'),
+    ('ink', 'surface-2', AA, 'fila de subtotal del desglose'),
+    ('pend', 'pend-tint', AA, 'etiqueta provisional'),
+    ('pend', 'bg', AA_UI, 'borde discontinuo del bloque provisional'),
+    ('ink', 'pend-tint', AA, 'aviso de dato interno, no oficial'),
+    ('serie-1', 'surface', AA_UI, 'barra de la primera candidatura'),
+    ('serie-2', 'surface', AA_UI, 'barra de la segunda candidatura (rayas)'),
+    ('serie-3', 'surface', AA_UI, 'barra de la tercera candidatura (puntos)'),
+    ('line-strong', 'surface', AA_UI, 'contorno de la barra'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")

@@ -40,6 +40,13 @@ h1 {
   font-size: var(--text-2xl);
 }
 
+h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
 h2 {
   font-size: var(--text-lg);
 }
@@ -638,6 +645,9 @@ a.boton--secundario:hover {
 .grupo > .campos-grupo,
 .grupo > .descuadre,
 .grupo > .devolucion,
+.grupo > .contadores,
+.grupo > .desplazable,
+.grupo > section,
 .grupo > .acciones,
 .grupo > .reclamaciones,
 .grupo > .tabla,
@@ -874,6 +884,109 @@ a.boton--secundario:hover {
   text-align: right;
 }
 
+/* ---- Panel consolidado ---------------------------------------------------- */
+
+.contadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--s-2);
+}
+
+.contador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.contador dd {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+}
+
+.tabla.tabla--suma {
+  max-width: 40rem;
+}
+
+.tabla.tabla--suma td {
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+.tabla.tabla--suma .tabla__barra {
+  width: 40%;
+}
+
+/* La trama distingue cada candidatura aunque no se vea el tono. */
+.barra {
+  display: block;
+  height: 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--surface);
+}
+
+.barra__lleno {
+  display: block;
+  height: 100%;
+}
+
+.barra__lleno--1 {
+  background: var(--serie-1);
+}
+
+.barra__lleno--2 {
+  background: repeating-linear-gradient(45deg, var(--serie-2) 0 4px, var(--surface) 4px 7px);
+}
+
+.barra__lleno--3 {
+  background:
+    radial-gradient(circle at 3px 3px, var(--surface) 1.5px, transparent 1.6px) 0 0 / 6px 6px,
+    var(--serie-3);
+}
+
+.provisional {
+  padding: var(--s-4);
+  border: 1px dashed var(--pend);
+  border-radius: var(--radius);
+}
+
+.provisional h2 .chip {
+  vertical-align: middle;
+}
+
+.desplazable {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.tabla.tabla--desglose {
+  min-width: 38rem;
+}
+
+.tabla.tabla--desglose .num {
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+.tabla.tabla--desglose abbr {
+  text-decoration: none;
+}
+
+.tabla.tabla--desglose tfoot th,
+.tabla.tabla--desglose tfoot td {
+  border-bottom: 0;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 600;
+}
+
 /* ---- Tablas --------------------------------------------------------------- */
 
 .tabla {
@@ -1075,6 +1188,10 @@ a.boton--secundario:hover {
   .vista {
     max-width: 56rem;
     margin: 0;
+  }
+
+  .vista--ancha {
+    max-width: 68rem;
   }
 
   .pie {

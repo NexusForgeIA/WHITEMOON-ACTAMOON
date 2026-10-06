@@ -63,6 +63,11 @@
   --err-hover: #7f1d16;
   --err-tint: #fae5e2;
 
+  /* Barras del panel: las candidaturas se distinguen por tono y trama */
+  --serie-1: #16202b;
+  --serie-2: #56616f;
+  --serie-3: #6f7986;
+
   /* Tipografia */
   --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;

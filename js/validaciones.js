@@ -49,6 +49,16 @@ export function validaActa(cifras, candidaturas) {
   return { completa: true, errores, reglas, cuadra: reglas.every((regla) => regla.ok) };
 }
 
+// Frases que explican cada regla incumplida. textos: masVotantes, sobran y faltan.
+export function frasesDescuadre(validacion, textos) {
+  return validacion.reglas
+    .filter((regla) => !regla.ok)
+    .map((regla) => {
+      if (regla.id === 'votantes-electores') return textos.masVotantes(regla.diferencia);
+      return regla.diferencia > 0 ? textos.sobran(regla.diferencia) : textos.faltan(-regla.diferencia);
+    });
+}
+
 // Decide si el acta se puede enviar y, si no, que falta. Con descuadre solo
 // pasa si se confirma que el papel dice eso y se escribe un motivo.
 export function puedeEnviar({ validacion, hayFoto, confirmaPapel, motivo, motivoMinimo }) {

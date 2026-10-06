@@ -61,7 +61,7 @@ La app está en la raíz y la portada en `portada.html`.
 ## Comprobaciones
 
 ```
-node --test                           # acta, hash, doble confirmación, cadena de auditoría, permisos, ausencia de red, CSP, portada
+node --test                           # acta, hash, doble confirmación, auditoría, panel, PDF, permisos, ausencia de red, CSP, portada
 python scripts/verifica-contraste.py  # contraste AA de la paleta (lee assets/css/tokens.css)
 ```
 
@@ -82,6 +82,9 @@ js/hash.js               SHA-256 con Web Crypto
 js/foto.js               huella del original y copia reducida a 1600 px
 js/actas.js              registros de acta y doble confirmación (módulo puro)
 js/auditoria.js          registro encadenado por huellas: crear y verificar (módulo puro)
+js/consolidado.js        panel: totales de actas validadas, provisional y desglose (módulo puro)
+js/pdf.js                generador de PDF propio, sin librerías (módulo puro)
+js/documentos.js         PDF de una mesa y PDF del panel (módulo puro)
 js/datos-ejemplo.js      Municipio de Ejemplo: colegios, mesas y perfiles
 js/vistas/               una por pantalla
 scripts/                 verificación de contraste
