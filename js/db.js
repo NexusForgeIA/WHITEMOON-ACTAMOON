@@ -73,9 +73,12 @@ export function leer(almacen, clave) {
   return transaccion(almacen, 'readonly', (tx) => tx.objectStore(almacen).get(clave));
 }
 
-// lotes: { almacen: [valores] }. Todo o nada.
-export function guardar(lotes) {
-  return transaccion(Object.keys(lotes), 'readwrite', (tx) => {
+// lotes: { almacen: [valores] }. borrados: { almacen: [claves] }. Todo o nada.
+export function guardar(lotes, borrados = {}) {
+  return transaccion([...new Set([...Object.keys(lotes), ...Object.keys(borrados)])], 'readwrite', (tx) => {
+    for (const [almacen, claves] of Object.entries(borrados)) {
+      for (const clave of claves) tx.objectStore(almacen).delete(clave);
+    }
     for (const [almacen, valores] of Object.entries(lotes)) {
       const store = tx.objectStore(almacen);
       for (const valor of valores) {

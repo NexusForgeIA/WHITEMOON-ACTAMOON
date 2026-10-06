@@ -635,6 +635,28 @@ a.boton--secundario:hover {
   color: var(--muted);
 }
 
+.filas--perfiles li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  padding: var(--s-2) var(--s-3) var(--s-2) var(--s-4);
+}
+
+.filas--perfiles .fila__titulo {
+  flex: 1 1 8rem;
+}
+
+.perfil:disabled {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.perfil__activo--no {
+  color: var(--ink-2);
+}
+
 /* ---- Ficha de mesa y limites de la demo ----------------------------------- */
 
 .ficha {
@@ -677,6 +699,7 @@ a.boton--secundario:hover {
 .grupo > .descuadre,
 .grupo > .devolucion,
 .grupo > .contadores,
+.grupo > .filas,
 .grupo > .desplazable,
 .grupo > section,
 .grupo > .acciones,
@@ -787,6 +810,21 @@ a.boton--secundario:hover {
   font: inherit;
   font-size: var(--text-xl);
   font-variant-numeric: tabular-nums;
+}
+
+/* Nombre o desplegable: texto corriente, no cifra. */
+.campo__entrada--nombre {
+  max-width: 28rem;
+  font-size: var(--text-md);
+}
+
+.grupo--formulario > .campo {
+  align-self: stretch;
+}
+
+.campo__entrada:disabled {
+  background: var(--surface-2);
+  color: var(--ink-2);
 }
 
 .campo__entrada--texto {

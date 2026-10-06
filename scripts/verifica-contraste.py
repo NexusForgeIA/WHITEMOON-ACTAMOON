@@ -187,6 +187,18 @@ bloque('11 - Actividad (KPI)', [
     ('serie-3', 'surface', AA_UI, 'barra de puntos y rejilla'),
 ])
 
+bloque('12 - Gestion de colegios, mesas y equipo', [
+    ('ok', 'ok-tint', AA, 'chip en uso'),
+    ('ink-2', 'surface-2', AA, 'chip desactivado, perfil desactivado y campo bloqueado'),
+    ('ink', 'surface', AA, 'nombre y desplegables'),
+    ('muted', 'bg', AA, 'ayuda del campo'),
+    ('muted', 'surface', AA, 'ambito del perfil en la lista'),
+    ('err', 'bg', AA, 'error del formulario'),
+    ('surface', 'err', AA, 'boton borrar'),
+    ('line-strong', 'surface', AA_UI, 'borde de campos y desplegables'),
+    ('line-strong', 'surface-2', AA_UI, 'borde del campo bloqueado'),
+])
+
 print()
 if fallos:
     print(f"RESULTADO: {len(fallos)} comprobacion(es) por debajo de su minimo")

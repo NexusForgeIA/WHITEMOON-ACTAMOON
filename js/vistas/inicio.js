@@ -52,6 +52,8 @@ function selector(estado, acciones) {
 
 function botonPerfil(perfil, estado, acciones) {
   const activo = estado.perfil?.id === perfil.id;
+  // Un perfil desactivado se ve, pero no se puede elegir.
+  const desactivado = perfil.activo === false;
   return h(
     'button',
     {
@@ -59,11 +61,13 @@ function botonPerfil(perfil, estado, acciones) {
       class: 'perfil',
       'data-perfil': perfil.id,
       'aria-pressed': String(activo),
+      disabled: desactivado,
       onclick: () => acciones.elegirPerfil(perfil.id),
     },
     h('span', { class: 'perfil__nombre' }, perfil.etiqueta),
-    h('span', { class: 'perfil__ambito' }, describeAmbito(perfil, estado)),
+    h('span', { class: 'perfil__ambito' }, describeAmbito(perfil, estado) || CONFIG.gestion.textos.sinAsignar),
     activo && h('span', { class: 'perfil__activo' }, 'Perfil activo'),
+    desactivado && h('span', { class: 'perfil__activo perfil__activo--no' }, CONFIG.gestion.textos.perfilDesactivado),
   );
 }
 

@@ -12,8 +12,14 @@ export const GENESIS = '0'.repeat(64);
 // Los campos que entran en la huella, siempre en este orden.
 const CAMPOS = ['seq', 'hora', 'perfilId', 'rol', 'accion', 'mesaId', 'detalle'];
 
+// Las entradas de gestion llevan ademas a que objeto afectan y que cambio
+// (valor anterior y nuevo). Esos dos campos entran en la huella solo cuando
+// existen: una entrada sin ellos se calcula igual que antes de existir, asi
+// que las cadenas ya guardadas siguen verificando.
 export function canonico(entrada) {
-  return JSON.stringify(CAMPOS.map((campo) => entrada[campo] ?? null));
+  const base = CAMPOS.map((campo) => entrada[campo] ?? null);
+  const ampliada = entrada.objeto != null || entrada.cambio != null;
+  return JSON.stringify(ampliada ? [...base, entrada.objeto ?? null, entrada.cambio ?? null] : base);
 }
 
 function huella(hashPrevio, entrada) {
@@ -21,7 +27,7 @@ function huella(hashPrevio, entrada) {
 }
 
 // Entrada siguiente a `anterior` (null si es la primera).
-export async function nuevaEntrada(anterior, { hora, perfil, accion, mesaId = null, detalle = '' }) {
+export async function nuevaEntrada(anterior, { hora, perfil, accion, mesaId = null, detalle = '', objeto, cambio }) {
   const entrada = {
     seq: (anterior?.seq ?? 0) + 1,
     hora,
@@ -30,6 +36,8 @@ export async function nuevaEntrada(anterior, { hora, perfil, accion, mesaId = nu
     accion,
     mesaId,
     detalle,
+    ...(objeto != null ? { objeto } : {}),
+    ...(cambio != null ? { cambio } : {}),
   };
   const hashPrevio = anterior?.hash ?? GENESIS;
   return { ...entrada, hashPrevio, hash: await huella(hashPrevio, entrada) };

@@ -23,6 +23,8 @@ export const RUTAS = [
     roles: ['administrador'],
     nav: { href: '#/organizacion', etiqueta: 'Equipo', icono: 'organizacion' },
   },
+  { id: 'gestion-colegio', patron: /^#\/organizacion\/colegio\/([\w-]+)$/, roles: ['administrador'], padre: 'organizacion' },
+  { id: 'gestion-mesa', patron: /^#\/organizacion\/mesa\/([\w-]+)$/, roles: ['administrador'], padre: 'organizacion' },
   {
     id: 'auditoria',
     patron: /^#\/auditoria$/,
@@ -62,8 +64,9 @@ export function mesasVisibles(perfil, mesas) {
 }
 
 // Solo el interventor de la mesa captura su acta.
+// Una mesa desactivada esta cerrada a cambios: no admite capturas ni reenvios.
 export function puedeCapturar(perfil, mesa) {
-  return perfil?.rol === 'interventor' && perfil.mesaIds.includes(mesa.id);
+  return mesa.activo !== false && perfil?.rol === 'interventor' && perfil.mesaIds.includes(mesa.id);
 }
 
 // Valida o devuelve el apoderado del colegio o el administrador; nunca quien
@@ -76,6 +79,7 @@ export function puedeValidar(perfil, mesa, acta) {
 
 // Reclaman el interventor de la mesa y el apoderado de su colegio.
 export function puedeReclamar(perfil, mesa) {
+  if (mesa.activo === false) return false; // cerrada a cambios
   if (perfil?.rol === 'interventor') return perfil.mesaIds.includes(mesa.id);
   return perfil?.rol === 'apoderado' && perfil.colegioIds.includes(mesa.colegioId);
 }
