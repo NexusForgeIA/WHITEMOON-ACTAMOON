@@ -1,0 +1,5 @@
+# Netlify sirve los archivos tal cual estan en el repositorio. Sin esto
+# reescribe los enlaces a portada.html como /portada, que no esta en la cache
+# del Service Worker y falla sin conexion.
+[build.processing.html]
+  pretty_urls = false
