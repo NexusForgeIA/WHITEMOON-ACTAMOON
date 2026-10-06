@@ -91,6 +91,13 @@ export function vistaMesa({ estado, params: [mesaId], acciones }) {
       ),
       acta && detalleActa(acta, mesa, estado),
       acta && formularioValidacion({ acta, mesa, estado, acciones }),
+      acta &&
+        h(
+          'button',
+          { type: 'button', class: 'boton boton--secundario', id: 'pdf-mesa', onclick: () => acciones.descargarPdfMesa(mesa) },
+          icono('descarga'),
+          CONFIG.pdf.textos.descargarMesa,
+        ),
       listaReclamaciones(mesa, estado),
     ),
   };

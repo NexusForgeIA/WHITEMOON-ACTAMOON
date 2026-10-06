@@ -11,6 +11,12 @@ export const RUTAS = [
   { id: 'acta', patron: /^#\/mesa\/([\w-]+)\/acta$/, roles: ['interventor'], padre: 'mesas' },
   { id: 'reclamacion', patron: /^#\/mesa\/([\w-]+)\/reclamacion$/, roles: ['interventor', 'apoderado'], padre: 'mesas' },
   {
+    id: 'panel',
+    patron: /^#\/panel$/,
+    roles: ['administrador', 'apoderado'],
+    nav: { href: '#/panel', etiqueta: 'Panel', icono: 'panel' },
+  },
+  {
     id: 'organizacion',
     patron: /^#\/organizacion$/,
     roles: ['administrador'],
@@ -38,8 +44,13 @@ export function puedeVer(perfil, ruta) {
   return Boolean(perfil) && ruta.roles.includes(perfil.rol);
 }
 
+// La barra inferior del movil admite 5 destinos. Si hay mas, sale "Perfil":
+// el boton de perfil de la cabecera lleva al mismo sitio.
+const MAXIMO_NAV = 5;
+
 export function navegacion(perfil) {
-  return RUTAS.filter((ruta) => ruta.nav && puedeVer(perfil, ruta)).map((ruta) => ({ id: ruta.id, ...ruta.nav }));
+  const destinos = RUTAS.filter((ruta) => ruta.nav && puedeVer(perfil, ruta)).map((ruta) => ({ id: ruta.id, ...ruta.nav }));
+  return destinos.length > MAXIMO_NAV ? destinos.filter((destino) => destino.id !== 'inicio') : destinos;
 }
 
 export function mesasVisibles(perfil, mesas) {

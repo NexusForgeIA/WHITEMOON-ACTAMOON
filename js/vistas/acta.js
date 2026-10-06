@@ -3,7 +3,7 @@ import { CONFIG } from '../config.js';
 import { leer } from '../db.js';
 import { puedeCapturar } from '../permisos.js';
 import { h, icono, urlTemporal } from '../ui.js';
-import { leeEntero, puedeEnviar, validaActa } from '../validaciones.js';
+import { frasesDescuadre, leeEntero, puedeEnviar, validaActa } from '../validaciones.js';
 import { formateaHora, nombreColegio, vistaMensaje } from './comun.js';
 import { campoFoto, datosDeFoto } from './foto-campo.js';
 import { resultadoValidacion } from './validacion.js';
@@ -43,15 +43,7 @@ function cifrasDe(textos) {
   };
 }
 
-// Frases que explican cada regla incumplida.
-function explicaDescuadre(validacion) {
-  return validacion.reglas
-    .filter((regla) => !regla.ok)
-    .map((regla) => {
-      if (regla.id === 'votantes-electores') return T.masVotantes(regla.diferencia);
-      return regla.diferencia > 0 ? T.sobran(regla.diferencia) : T.faltan(-regla.diferencia);
-    });
-}
+const explicaDescuadre = (validacion) => frasesDescuadre(validacion, T);
 
 export function vistaActa({ estado, params: [mesaId], acciones }) {
   const mesa = estado.mesas.find((m) => m.id === mesaId);

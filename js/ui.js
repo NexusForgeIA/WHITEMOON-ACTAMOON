@@ -18,6 +18,8 @@ const TRAZOS = {
   no: `${CIRCULO} M5.6 5.6l12.8 12.8`,
   camara: 'M4 8h3l1.5-2h7L17 8h3v11H4z M12 16.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
   registro: 'M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h3',
+  panel: 'M4 20V10 M10 20V4 M16 20v-7 M3 20h18',
+  descarga: 'M12 4v11 M7 11l5 5 5-5 M5 20h14',
   pendiente: `${CIRCULO} M12 7v5l3 2`,
   adelante: 'M9 6l6 6-6 6',
   atras: 'M15 6l-6 6 6 6',
@@ -66,6 +68,16 @@ export function urlTemporal(blob) {
 export function liberaUrls() {
   for (const url of urls) URL.revokeObjectURL(url);
   urls.clear();
+}
+
+// Ofrece unos bytes como archivo descargable, sin pasar por la red.
+export function descarga(bytes, nombre, tipo) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: tipo }));
+  const enlace = h('a', { href: url, download: nombre, hidden: true });
+  document.body.append(enlace);
+  enlace.click();
+  enlace.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 let temporizador;
